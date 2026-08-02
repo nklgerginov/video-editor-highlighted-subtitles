@@ -1,1 +1,3 @@
-Test content
+"""
+Video Editor with Highlighted Subtitles
+"""
