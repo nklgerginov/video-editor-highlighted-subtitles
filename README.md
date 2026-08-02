@@ -1,6 +1,6 @@
 # Video Editor with Highlighted Subtitles
 
-A desktop application that automatically generates word-level synchronized subtitles for videos, with highlighting effects similar to YouTube Shorts and Instagram Reels.
+The goal is to make a desktop application that automatically generates word-level synchronized subtitles for videos, with highlighting effects similar to YouTube Shorts and Instagram Reels.
 
 ## Features
 - Video Upload: Open any video file (MP4, AVI, MOV, MKV, WEBM)
