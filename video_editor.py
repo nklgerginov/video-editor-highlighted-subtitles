@@ -1,3 +1,1 @@
-"""
-Video Editor with Highlighted Subtitles
-"""
+Full content here
