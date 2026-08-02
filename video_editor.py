@@ -1,17 +1,3 @@
-"""
-Video Editor with Highlighted Subtitles
-
-A desktop application that:
-1. Extracts audio from uploaded video files
-2. Generates word-level synchronized subtitles
-3. Renders videos with highlighted subtitles
-4. Allows preview and export
-
-Requirements: Python 3.8+, PyQt6, moviepy, pydub, SpeechRecognition, vosk, numpy
-Install: pip install -r requirements.txt
-Vosk models: https://alphacephei.com/vosk/models
-"""
-
 import sys
 import os
 import json
@@ -33,3 +19,20 @@ from PyQt6.QtMultimediaWidgets import QVideoWidget
 from moviepy.editor import VideoFileClip, AudioFileClip, TextClip, CompositeVideoClip
 from pydub import AudioSegment
 import speech_recognition as sr
+
+
+class SubtitleWord:
+    def __init__(self, text, start_time, end_time):
+        self.text = text
+        self.start_time = start_time
+        self.end_time = end_time
+
+
+class SubtitleLine:
+    def __init__(self, words, start_time, end_time):
+        self.words = words
+        self.start_time = start_time
+        self.end_time = end_time
+    
+    def get_text(self):
+        return " ".join(w.text for w in self.words)
