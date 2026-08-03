@@ -170,12 +170,13 @@ class MainWindow(QMainWindow):
         self.player.positionChanged.connect(self._update_time)
 
     def _load_fonts(self):
-        fdb = QFontDatabase()
-        self.font_cb.clear()
-        self.font_cb.addItems(fdb.families())
-        for f in ["Arial", "Helvetica"]:
-            if f in fdb.families():
-                self.font_cb.setCurrentText(f)
+        font_db = QFontDatabase()
+        families = font_db.families()
+        self.font_combo.clear()
+        self.font_combo.addItems(families)
+        for font in ["Arial", "Helvetica"]:
+            if font in families:
+                self.font_combo.setCurrentText(font)
                 break
 
     def _populate_font_combo(self):
@@ -205,28 +206,37 @@ class MainWindow(QMainWindow):
     def _update_pos(self):
         if not self.project:
             return
-        pos = SubtitlePosition(self.x_sp.value(), self.y_sp.value(), self.w_sp.value(), self.h_sp.value())
-        self.project.position = pos
-        if self.preview.scene.subtitle_box:
-            self.preview.scene.subtitle_box.setRect(0, 0, pos.width, pos.height)
-            self.preview.scene.subtitle_box.setPos(pos.x, pos.y)
-            self.preview.scene.subtitle_box.update_resize_handles()
+        position = SubtitlePosition(x=self.x_spin.value(), y=self.y_spin.value(), width=self.width_spin.value(), height=self.height_spin.value())
+        self.project.position = position
+        if self.preview_widget.scene.subtitle_box:
+            self.preview_widget.scene.subtitle_box.setRect(0, 0, position.width, position.height)
+            self.preview_widget.scene.subtitle_box.setPos(position.x, position.y)
+            self.preview_widget.scene.subtitle_box.update_resize_handles()
+        self.position_label.setText(f"Position: {position.x}px, {position.y}px")
 
-    def _save_pos(self):
-        if self.preview.scene.subtitle_box:
-            pos = self.preview.scene.subtitle_box.get_position()
-            self.project.position = pos
-            self._update_pos_spins(pos)
+    def _save_position(self):
+        if self.preview_widget.scene.subtitle_box:
+            position = self.preview_widget.scene.subtitle_box.get_position()
+            self.project.position = position
+            self._update_position_spins(position)
 
-    def _update_time(self, pos_ms):
-        secs = pos_ms / 1000
-        self.preview.update_time(secs)
+    def _update_time_display(self, position_ms):
+        seconds = position_ms / 1000
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
+        secs = int(seconds % 60)
+        self.time_label.setText(f"{hours:02d}:{minutes:02d}:{secs:02d}")
+        self.preview_widget.update_time(seconds)
+        self.current_time = seconds
 
-    def _play(self):
+    def _play_video(self):
         if not self.current_video_path:
             self._load_video()
             return
-        self.player.play()
+        if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
+            return
+        self.media_player.play()
+        self.preview_widget.set_playing(True)
 
     def _pause(self):
         self.player.pause()
