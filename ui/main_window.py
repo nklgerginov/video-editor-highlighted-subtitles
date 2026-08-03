@@ -8,7 +8,7 @@ import os
 from PyQt6.QtWidgets import (
     QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QPushButton,
     QFileDialog, QProgressBar, QComboBox, QGroupBox, QScrollArea,
-    QFrame, QSpinBox, QDoubleSpinBox, QFormLayout, QColorDialog, QSlider
+    QFrame, QSpinBox, QDoubleSpinBox, QFormLayout, QColorDialog
 )
 from PyQt6.QtCore import Qt, QTimer, QUrl, QSize
 from PyQt6.QtGui import QPixmap, QIcon, QFont, QPalette, QColor, QFontDatabase
