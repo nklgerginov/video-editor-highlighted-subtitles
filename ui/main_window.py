@@ -218,7 +218,7 @@ class MainWindow(QMainWindow):
         self.text_color_button.setStyleSheet("QPushButton { background-color: #34495e; color: #ecf0f1; padding: 6px; border-radius: 4px; border: 1px solid #2c3e50; }")
         self.text_color = QColor(255, 255, 255)
         self._update_color_button(self.text_color_button, self.te
-text_color)
+xt_color)
         style_layout.addRow("Text Color:", self.text_color_button)
         
         self.highlight_color_button = QPushButton("Choose Highlight Color")
@@ -260,7 +260,7 @@ text_color)
         
         self.x_spin.setRange(0, 2000)
         self.x_spin.se
-setValue(50)
+tValue(50)
         position_form.addRow("X (px):", self.x_spin)
         
         self.y_spin.setRange(0, 2000)
@@ -475,8 +475,8 @@ self.project.position = pos
                 self, "Model Not Found", 
                 f"Vosk model not found at: {model_path}
 
-"Download models from: https://alphacephei.com/vosk/models
-                and place them in the 'models' folder"
+
+                "Download models from: https://alphacephei.com/vosk/models
 "
                 "and place them in the 'models' folder"
             )
