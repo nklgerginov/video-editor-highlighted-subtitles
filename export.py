@@ -112,6 +112,7 @@ class VideoExporter:
         quality_params = {
             "low": {"bitrate": "500k"},
             "medium": {"bitrate": "2000k"},
+            
             "high": {"bitrate": "5000k"},
             "ultra": {"bitrate": "10000k"}
         }
