@@ -61,6 +61,7 @@ class VideoExporter:
     def _create_highlighted_subtitle_clips(self, video: VideoFileClip) -> List:
         subtitle_clips = []
         style = self.project.style
+
         position = self.project.position
 
         bg_clip = ColorClip(
