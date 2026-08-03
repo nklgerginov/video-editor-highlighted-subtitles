@@ -56,7 +56,8 @@ class ExportThread(QThread):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Video Editor - Highlighted Subtitles")        self.setMinimumSize(1200, 800)
+        self.setWindowTitle("Video Editor - Highlighted Subtitles")
+        self.setMinimumSize(1200, 800)
         self.project = VideoProject()
         self.current_video_path = ""
         self.current_time = 0.0
