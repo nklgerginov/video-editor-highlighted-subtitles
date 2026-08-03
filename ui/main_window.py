@@ -4,7 +4,7 @@ from typing import Optional
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QComboBox, QSpinBox, QDoubleSpinBox, QGroupBox, QFormLayout,
-        QMessageBox, QFileDialog, QColorDialog, QApplication, QSizePolicy
+    QMessageBox, QFileDialog, QColorDialog, QApplication, QSizePolicy
 )
 from PyQt6.QtGui import QPixmap, QImage, QFontDatabase, QFont, QColor, QPalette
 from PyQt6.QtCore import Qt, QTimer, QSize, QUrl, pyqtSignal, QThread, QObject
@@ -21,12 +21,12 @@ class ProcessingThread(QThread):
     processing_complete = pyqtSignal(VideoProject)
     error_occurred = pyqtSignal(str)
 
-        def __init__(self, video_path: str, vosk_model_path: str):
+    def __init__(self, video_path: str, vosk_model_path: str):
         super().__init__()
         self.video_path = video_path
         self.vosk_model_path = vosk_model_path
 
-        def run(self):
+    def run(self):
         try:
             generator = SubtitleGenerator(self.vosk_model_path)
             project = generator.process_video(self.video_path, self.vosk_model_path)
@@ -39,12 +39,12 @@ class ExportThread(QThread):
     export_complete = pyqtSignal(str)
     error_occurred = pyqtSignal(str)
 
-        def __init__(self, project: VideoProject, output_path: str):
+    def __init__(self, project: VideoProject, output_path: str):
         super().__init__()
         self.project = project
         self.output_path = output_path
 
-        def run(self):
+    def run(self):
         try:
             exporter = VideoExporter(self.project)
             exporter.export(self.output_path)
@@ -56,7 +56,7 @@ class ExportThread(QThread):
 class VideoFrameGrabber(QObject):
     frame_available = pyqtSignal(QPixmap)
 
-        def __init__(self, video_widget):
+    def __init__(self, video_widget):
         
 
 
@@ -67,20 +67,20 @@ class VideoFrameGrabber(QObject):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.grab_frame)
 
-        def start(self, interval=33):
+    def start(self, interval=33):
         self.timer.start(interval)
 
-        def stop(self):
+    def stop(self):
         self.timer.stop()
 
-        def grab_frame(self):
+    def grab_frame(self):
         if self.video_widget:
             pixmap = self.video_widget.grab()
             self.frame_available.emit(pixmap)
 
 
 class MainWindow(QMainWindow):
-        def __init__(self):
+    def __init__(self):
         super().__init__()
         self._setup_dark_theme()
         self.setWindowTitle("Video Editor - Highlighted Subtitles")
@@ -93,7 +93,7 @@ class MainWindow(QMainWindow):
         self._load_fonts()
         self._setup_media_player()
 
-        def _setup_dark_theme(self):
+    def _setup_dark_theme(self):
         dark_palette = QPalette()
         dark_palette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
         dark_palette.setColor(QPalette.ColorRole.WindowText, Qt.GlobalColor.white)
@@ -118,7 +118,7 @@ class MainWindow(QMainWindow):
         QApplication.setPalette(dark_palette)
         QApplication.setStyle("Fusion")
 
-        def _setup_ui(self):
+    def _setup_ui(self):
         main_widget = QWidget(self)
         self.setCentralWidget(main_widget)
         main_layout = QHBoxLayout(main_widget)
@@ -154,7 +154,7 @@ class MainWindow(QMainWindow):
 
   
   
-        self.stop_button = QPushButton("Stop")
+    self.stop_button = QPushButton("Stop")
 
         self.stop_button.setStyleSheet("QPushButton { background-color: #e74c3c; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #ec7063; }")
         
@@ -324,7 +324,7 @@ elf.x_spin.setValue(50)
         main_layout.addLayout(left_panel, stretch=2)
         main_layout.addLayout(right_panel, stretch=1)
 
-        def _scan_models(self):
+    def _scan_models(self):
         models_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "models")
         if os.path.exists(models_dir):
             for item in os.listdir(models_dir):
@@ -332,12 +332,12 @@ elf.x_spin.setValue(50)
       
       
       
-        self.model_combo.
+  self.model_combo.
 adaddItem(os.path.join("models", item))
         self.model_combo.addItem("vosk-model-en-us-0.22-lgraph")
         self.model_combo.addItem("vosk-model-small-en-us-0.15")
 
-        def _setup_connections(self):
+    def _setup_connections(self):
         self.upload_button.clicked.connect(self._load_video)
         self.play_button.clicked.connect(self._play)
         self.pause_button.clicked.connect(self._pause)
@@ -356,7 +356,7 @@ adaddItem(os.path.join("models", item))
         self.preview_widget.position_changed.connect(self._update_pos_spins)
         self.export_button.clicked.connect(self._export)
 
-        def _setup_media_player(self):
+    def _setup_media_player(self):
         self.media_player = QMediaPlayer(self)
         self.audio_out = QAudioOutput(self)
         self.media_player.setAudioOutput(self.audio_out)
@@ -369,7 +369,7 @@ adaddItem(os.path.join("models", item))
         self.frame_grabber = VideoFrameGrabber(self.video_sink)
         self.frame_grabber.frame_available.connect(self._update_preview_frame)
 
-        def _load_fonts(self):
+    def _load_fonts(self):
         families = QFontDatabase.families()
         self.font_combo.clear()
         self.f
@@ -383,10 +383,10 @@ for f in ["Arial", "Helvetica", "Roboto", "Segoe UI"]:
                 self.font_combo.setCurrentText(f)
                 break
 
-        def _update_color_button(self, button, color):
+    def _update_color_button(self, button, color):
         button.setStyleSheet(f"QPushButton {{ background-color: {color.name()}; color: {'black' if color.lightness() > 128 else 'white'}; padding: 6px; border-radius: 4px; border: 1px solid #2c3e50; }}")
 
-        def _update_style(self):
+    def _update_style(self):
         if not self.project:
             self.project = VideoProject()
         self.project.style = SubtitleStyle(
@@ -399,28 +399,28 @@ for f in ["Arial", "Helvetica", "Roboto", "Segoe UI"]:
         if self.preview_widget.project:
             self.preview_widget.set_project(self.project)
 
-        def _choose_text_color(self):
+    def _choose_text_color(self):
         color = QColorDialog.getColor(self.text_color, self, "Choose Text Color")
         if color.isValid():
             self.text_color = color
             self._update_color_button(self.text_color_button, color)
             self._update_style()
 
-        def _choose_highlight_color(self):
+    def _choose_highlight_color(self):
         color = QColorDialog.getColor(self.highlight_color, self, "Choose Highlight Color")
         if color.isValid():
             self.highlight_color = color
             self._update_color_button(self.highlight_color_button, color)
             self._update_style()
 
-        def _update_pos_spins(self, pos):
+    def _update_pos_spins(self, pos):
         self.x_spin.setValue(pos.x)
         self.y_spin.setValue(pos.y)
         self.width_spin.setValue(pos.width)
         self.height_spin.setValue(pos.height)
         self.position_label.setText(f"Position: {pos.x}px, {pos.y}px")
 
-        def _update_pos(self):
+    def _update_pos(self):
         if not self.project:
             return
         pos = SubtitlePosition(self.x_spin.value(), self.y_spin.value
@@ -435,28 +435,28 @@ elf.height_spin.value
             self.preview_widget.scene.subtitle_box.setPos(pos.x, pos.y)
             self.preview_widget.scene.subtitle_box.update_resize_handles()
 
-        def _save_pos(self):
+    def _save_pos(self):
         if self.preview_widget.scene.subtitle_box:
             pos = self.preview_widget.scene.subtitle_box.get_position()
             self.project.position = pos
             self._update_pos_spins(pos)
 
-        def _update_time(self, pos_ms):
+    def _update_time(self, pos_ms):
         secs = pos_ms / 1000
         self.current_time = secs
         self.preview_widget.update_time(secs)
         self.time_label.setText(self._format_time(secs))
 
-        def _format_time(self, seconds: float) -> str:
+    def _format_time(self, seconds: float) -> str:
         hours = int(seconds // 3600)
         minutes = int((seconds % 3600) // 60)
         secs = int(seconds % 60)
         return f"{hours:02d}:{minutes:02d}:{secs:02d}"
 
-        def _update_preview_frame(self, pixmap):
+    def _update_preview_frame(self, pixmap):
         self.preview_widget.set_video_frame(pixmap)
 
-        def _play(self):
+    def _play(self):
         if not self.current_video_path:
             QMessageBox.warning(self, "No Video", "Please upload a video first")
             return
@@ -466,24 +466,24 @@ elf.height_spin.value
         self.frame_grabber.start()
         self.preview_widget.set_playing(True)
 
-        def _pause(self):
+    def _pause(self):
         self.media_player.pause()
         self.frame_grabber.stop()
         self.preview_widget.set_playing(False)
 
-        def _stop(self):
+    def _stop(self):
         self.media_player.stop()
         self.frame_grabber.stop()
         self.preview_widget.set_playing(False)
         self._update_time(0)
 
-        def _load_video(self):
+    def _load_video(self):
         fp, _ = QFileDialog.getOpenFileName(self, "Open Video", "", "Video Files (*.mp4 *.avi *.mov *.mkv)")
         if fp:
             self.current_vid
 eo_path = fp
          
-        self.pr
+   self.pr
 oject.video_path = fp
 
             self.media_player.setSource(QUrl.fromLocalFile(fp))
@@ -492,7 +492,7 @@ oject.video_path = fp
             self._update_time(0)
             QMessageBox.information(self, "Video Loaded", f"Video loaded: {os.path.basename(fp)}")
 
-        def _gen_subs(self):
+    def _gen_subs(self):
         model_path = self.model_combo.currentText()
         
         if not os.path.exists(model_path):
@@ -526,7 +526,7 @@ oject.video_path = fp
         self.thread.error_occurred.connect(self._on_proc_err)
         self.thread.start()
 
-        def _on_proc_done(self, project):
+    def _on_proc_done(self, project):
         self.project = project
         self.processing_label.setVisible(False)
         self.process_button.setEnabled(True)
@@ -540,13 +540,13 @@ t.position)
         QMessageBox.information(self, "Success", "Subtitles generated successfully!")
 Success", "Subtitles generated successfully!")
 
-        def _on_proc_err(self, error):
+    def _on_proc_err(self, error):
         self.processing_label.setVisible(False)
         self.process_button.setEnabled(True)
         QMessageBox.critical(self, "Error", f"Failed to generate subtitles:
 {error}")
 
-        def _export(self):
+    def _export(self):
         default_name = os.path.splitext(os.path.basename(self.current_video_path))[0] + "_subtitled.mp4"
         op, _ = QFileDialog.getSaveFileName(
             self, "Save Video", default_name, "MP4 Files (*.mp4)"
@@ -560,25 +560,25 @@ Success", "Subtitles generated successfully!")
         self.exp_thread.error_occurred.connect(self._on_exp_err)
         self.exp_thread.start()
 
-        def _on_exp_done(self, path):
+    def _on_exp_done(self, path):
         self.export_label.setVisible(False)
         self.export_button.setEnabled(True)
         QMessageBox.information(self, "Success", f"Video exported to:
 {path}")
 
-        def _on_exp_err(self, error):
+    def _on_exp_err(self, error):
         self.export_label.setVisible(False)
         self.export_button.setEnabled(True)
         QMessageBox.critical(self, "Error", f"Export failed:
 {error}")
 
-        def closeEvent(self, event):
+    def closeEvent(self, event):
         self._stop()
         super().closeEvent(event)
 
 
 def main():
-        app = QApplication(sys.argv)
+    app = QApplication(sys.argv)
     w = MainWindow()
     w.show()
     sys.exit(app.exec())
