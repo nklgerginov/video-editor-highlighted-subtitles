@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
     QMessageBox, QFileDialog, QColorDialog, QApplication, QSizePolicy
 )
 from PyQt6.QtGui import QPixmap, QImage, QFontDatabase, QFont, QColor
-from PyQt6.QtCore import Qt, QTimer, QSize, pyqtSignal, QThread
+from PyQt6.QtCore import Qt, QTimer, QSize, QUrl, pyqtSignal, QThread
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PyQt6.QtMultimediaWidgets import QVideoWidget
 
@@ -56,7 +56,8 @@ class ExportThread(QThread):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Video Editor - Highlighted Subtitles")
+        self.setWindowTitle("Video Editor - Highlighted Subtitles"
+)
         self.setMinimumSize(1200, 800)
         self.project = VideoProject()
         self.current_video_path = ""
@@ -65,8 +66,6 @@ class MainWindow(QMainWindow):
         self._setup_connections()
         self._load_fonts()
         self._setup_media_player()
-        self.playback_timer = QTimer(self)
-        self.playback_timer.timeout.connect(self._update_playback)
 
     def _setup_ui(self):
         main_widget = QWidget(self)
@@ -108,7 +107,8 @@ class MainWindow(QMainWindow):
         vosk_layout.addWidget(QLabel("Select Vosk Model:"))
         vosk_layout.addWidget(self.model_combo)
         vosk_group.setLayout(vosk_layout)
-        right_panel.addWidget(vosk_group)
+      
+  right_panel.addWidget(vosk_group)
 
         self.process_button = QPushButton("Generate Subtitles")
         self.process_button.setEnabled(False)
@@ -148,7 +148,8 @@ class MainWindow(QMainWindow):
         position_layout = QVBoxLayout()
         position_layout.addWidget(QLabel("Drag the subtitle box in the preview"))
         self.save_position_button = QPushButton("Save Position")
-        position_layout.addWidget(self.save_position_button)
+        position_layout.
+addWidget(self.save_position_button)
         self.position_label = QLabel("Position: 50px, 50px")
         position_layout.addWidget(self.position_label)
 
@@ -194,7 +195,8 @@ class MainWindow(QMainWindow):
         self.stop_button.clicked.connect(self._stop)
         self.process_button.clicked.connect(self._gen_subs)
         self.font_combo.currentTextChanged.connect(self._update_style)
-        self.font_size_spin.valueChanged.connect(self._update_style)
+        self.font_size_spin.valueChanged.conn
+ect(self._update_style)
         self.highlight_scale_spin.valueChanged.connect(self._update_style)
         self.text_color_button.clicked.connect(self._choose_text_color)
         self.highlight_color_button.clicked.connect(self._choose_highlight_color)
@@ -237,7 +239,8 @@ class MainWindow(QMainWindow):
             highlight_color=self.highlight_color.name()
         )
         if self.preview_widget.project:
-            self.preview_widget.set_project(self.project)
+            
+self.preview_widget.set_project(self.project)
 
     def _choose_text_color(self):
         color = QColorDialog.getColor(self.text_color, self, "Choose Text Color")
@@ -286,7 +289,8 @@ class MainWindow(QMainWindow):
             return
         if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
             return
-        self.media_player.play()
+        
+self.media_player.play()
 
     def _pause(self):
         self.media_player.pause()
@@ -299,7 +303,7 @@ class MainWindow(QMainWindow):
         if fp:
             self.current_video_path = fp
             self.project.video_path = fp
-            self.media_player.setSource(fp)
+            self.media_player.setSource(QUrl.fromLocalFile(fp))
             self.process_button.setEnabled(True)
 
     def _gen_subs(self):
@@ -336,7 +340,8 @@ class MainWindow(QMainWindow):
         self.export_label.setVisible(True)
         self.export_button.setEnabled(False)
         self.exp_thread = ExportThread(self.project, op)
-        self.exp_thread.export_complete.connect(self._on_exp_done)
+        self.exp_thread.export_complete.connect(self._on_exp_d
+one)
         self.exp_thread.error_occurred.connect(self._on_exp_err)
         self.exp_thread.start()
 
