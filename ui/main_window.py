@@ -59,6 +59,7 @@ class VideoFrameGrabber(QObject):
     def __init__(self, video_widget):
         
 
+
         super().__init__()
         self.video_widget = video_widget
         self.timer = QTimer(self)
@@ -105,7 +106,8 @@ class MainWindow(QMainWindow):
         dark_palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.black)
-       
+      
+ 
  dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
 
         dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.ButtonText, QColor(127, 127, 127))
@@ -144,7 +146,8 @@ class MainWindow(QMainWindow):
         self.play_button.setStyleSheet("QPushButton { background-color: #2ecc71; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #37d477; }")
         self.pause_button = QPushButton("Pause")
         self.pause_button.setStyleSheet("QPushButton { background-color: #f39c12; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #f5ab35; }")
-    
+  
+  
     self.stop_button = QPushButton("Stop")
 
         self.stop_button.setStyleSheet("QPushButton { background-color: #e74c3c; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #ec7063; }")
@@ -184,7 +187,8 @@ class MainWindow(QMainWindow):
 
         # Process Button
         self.process_button = QPushButton("Generate Subtitles")
-        self.process_button.setStyleSheet("QPushButton { background-color: #9b59b6; color: white; padding: 10px; border-radius: 4px; font-size: 14px; } QPushButton:hover { background-color: #a569bd; } QPushButton:disabled { background-color: #7f8c8d; }")
+        self.process_button.setStyleSheet("QPushButton { background-color: #9b59b6; color: white; padding: 10px; border-radius: 4px; font-size: 14px; } QPushButton:hover { background-color: #a569bd; } QPushButton:disabled { background-color: #7f8c8d; }
+")
 
         self.process_button.setEnabled(False)
 
@@ -221,7 +225,8 @@ class MainWindow(QMainWindow):
         self.text_color_button = QPushButton("Choose Text Color")
         self.text_color_button.setStyleSheet("QPushButton { background-color: #34495e; color: #ecf0f1; padding: 6px; border-radius: 4px; border: 1px solid #2c3e50; }")
         self.text_color = QColor(255, 255, 255)
-        self._update_cself._update_color_button(self.text_color_button, self.text_color)
+        self._update_cself._update_color_button(s
+elf.text_color_button, self.text_color)
 
         style_layout.addRow("Text Color:", self.text_color_button)
         
@@ -262,7 +267,8 @@ class MainWindow(QMainWindow):
         for spin in [self.x_spin, self.y_spin, self.width_spin, self.height_spin]:
             spin.setStyleSheet("QSpinBox { background-color: #34495e; color: #ecf0f1; border: 1px solid #2c3e50; padding: 4px; border-radius: 4px; }")
         
-        self.x_spin.setRange(0, 2000)
+        self.x_spin.setRange(
+0, 2000)
         s
 elf.x_spin.setValue(50)
 
@@ -311,9 +317,9 @@ elf.x_spin.setValue(50)
         if os.path.exists(models_dir):
             for item in os.listdir(models_dir):
                 if os.path.isdir(os.path.join(models_dir, item)):
-                    self.model_combo.
-addItem(os.pat
-h.join("models", item))
+                  
+  self.model_combo.
+adaddItem(os.path.join("models", item))
         self.model_combo.addItem("vosk-model-en-us-0.22-lgraph")
         self.model_combo.addItem("vosk-model-small-en-us-0.15")
 
@@ -352,7 +358,8 @@ h.join("models", item))
     def _load_fonts(self):
         families = QFontDatabase.families()
         self.font_combo.clear()
-        self.font_combo.addItems(families)
+        self.font_combo.addIt
+ems(families)
       
   for f in ["Ar
 ial", "Helvetica", "Roboto", "Segoe UI"]:
@@ -400,7 +407,8 @@ ial", "Helvetica", "Roboto", "Segoe UI"]:
     def _update_pos(self):
         if not self.project:
             return
-        pos = SubtitlePosition(self.x_spin.value(), self.y_spin.value(), self.width_spin.value(), self.height_spin.value
+        pos = SubtitlePosition(self.x_spin.value(), self.y_spin.value(), self.width_spin.value(), s
+elf.height_spin.value
 ())
         self
 .project.position = pos
@@ -455,7 +463,8 @@ ial", "Helvetica", "Roboto", "Segoe UI"]:
         fp, _ = QFileDialog.getOpenFileName(self, "Open Video", "", "Video Files (*.mp4 *.avi *.mov *.mkv)")
         if fp:
             self.current_video_path = fp
-            self.project.video_path = fp
+            self.pr
+oject.video_path = fp
 
             self.media_player.setSource(QUrl.fromLocalFile(fp))
             self.process_button.setEnabled(True)
@@ -505,6 +514,7 @@ ial", "Helvetica", "Roboto", "Segoe UI"]:
         self._update_style()
         self.preview_widget.set_project(self.project)
         self._update_pos_spins(self.project.position)
+
         QMessageBox.information(self, "Success", "Subtitles generated successfully!")
 Success", "Subtitles generated successfully!")
 
