@@ -105,6 +105,7 @@ class MainWindow(QMainWindow):
         dark_palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.black)
         dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
+
         dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.ButtonText, QColor(127, 127, 127))
         QApplication.setPalette(dark_palette)
         QApplication.setStyle("Fusion")
@@ -346,7 +347,8 @@ h.join("models", item))
         families = QFontDatabase.families()
         self.font_combo.clear()
         self.font_combo.addItems(families)
-        for f in ["Arial", "Helvetica", "Roboto", "Segoe UI"]:
+        for f in ["Ar
+ial", "Helvetica", "Roboto", "Segoe UI"]:
             if f in families:
                 self.font_combo.setCurrentText(f)
                 break
@@ -446,7 +448,8 @@ h.join("models", item))
         if fp:
             self.current_video_path = fp
             self.project.video_path = fp
-            self.media_player.setSource(QUrl.fromLocalFile(fp))
+            media_player.setSource(QUrl.fromLocalFile(fp))
+
             self.process_button.setEnabled(True)
             self.export_button.setEnabled(False)
             self._update_time(0)
@@ -494,12 +497,14 @@ h.join("models", item))
         self._update_style()
         self.preview_widget.set_project(self.project)
         self._update_pos_spins(self.project.position)
-        QMessageBox.information(self, "Success", "Subtitles generated successfully!")
+        QMessageBox.information(self, "
+Success", "Subtitles generated successfully!")
 
     def _on_proc_err(self, error):
         self.processing_label.setVisible(False)
         self.process_button.setEnabled(True)
-        QMessageBox.critical(self, "Error", f"Failed to generate subtitles: {error}")
+        QMessageBox.critical(self, "Error", f"Failed to generate subtitles:
+{error}")
 
     def _export(self):
         default_name = os.path.splitext(os.path.basename(self.current_video_path))[0] + "_subtitled.mp4"
@@ -518,12 +523,14 @@ h.join("models", item))
     def _on_exp_done(self, path):
         self.export_label.setVisible(False)
         self.export_button.setEnabled(True)
-        QMessageBox.information(self, "Success", f"Video exported to: {path}")
+        QMessageBox.information(self, "Success", f"Video exported to:
+{path}")
 
     def _on_exp_err(self, error):
         self.export_label.setVisible(False)
         self.export_button.setEnabled(True)
-        QMessageBox.critical(self, "Error", f"Export failed: {error}")
+        QMessageBox.critical(self, "Error", f"Export failed:
+{error}")
 
     def closeEvent(self, event):
         self._stop()
