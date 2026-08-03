@@ -57,7 +57,7 @@ class VideoFrameGrabber(QObject):
     frame_available = pyqtSignal(QPixmap)
 
     def __init__(self, video_widget):
-        
+
 
         super().__init__()
         self.video_widget = video_widget
@@ -105,7 +105,7 @@ class MainWindow(QMainWindow):
         dark_palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.black)
-       
+
  dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
         dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.ButtonText, QColor(127, 127, 127))
         QApplication.setPalette(dark_palette)
@@ -124,7 +124,7 @@ class MainWindow(QMainWindow):
 
         preview_group = QGroupBox("Video Preview")
         preview_layout = QVBoxLayout()
-        
+
         self.preview_widget = VideoPreviewWidget()
         self.preview_widget.setMinimumSize(800, 450)
         self.preview_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
@@ -136,23 +136,23 @@ class MainWindow(QMainWindow):
         controls_group = QGroupBox("Video Controls")
         controls_layout = QHBoxLayout()
         controls_layout.setSpacing(10)
-        
+
         self.upload_button = QPushButton("Upload Video")
         self.upload_button.setStyleSheet("QPushButton { background-color: #2a82da; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #359aea; }")
         self.play_button = QPushButton("Play")
         self.play_button.setStyleSheet("QPushButton { background-color: #2ecc71; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #37d477; }")
         self.pause_button = QPushButton("Pause")
         self.pause_button.setStyleSheet("QPushButton { background-color: #f39c12; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #f5ab35; }")
-     
-        self.stop_button = QPushButton("Stop")
+
+   self.stop_button = QPushButton("Stop")
         self.stop_button.setStyleSheet("QPushButton { background-color: #e74c3c; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #ec7063; }")
-        
+
         controls_layout.addWidget(self.upload_button)
         controls_layout.addWidget(self.play_button)
         controls_layout.addWidget(self.pause_button)
         controls_layout.addWidget(self.stop_button)
         controls_layout.addStretch()
-        
+
         self.time_label = QLabel("00:00:00")
         self.time_label.setStyleSheet("color: #ecf0f1; font-size: 14px;")
         controls_layout.addWidget(self.time_label)
@@ -167,12 +167,12 @@ class MainWindow(QMainWindow):
         vosk_group = QGroupBox("Vosk Model")
         vosk_layout = QVBoxLayout()
         vosk_layout.setSpacing(10)
-        
+
         self.model_combo = QComboBox()
         self._scan_models()
         self.model_combo.setEditable(True)
         self.model_combo.setStyleSheet("QComboBox { background-color: #34495e; color: #ecf0f1; border: 1px solid #2c3e50; padding: 6px; border-radius: 4px; } QComboBox QAbstractItemView { background-color: #34495e; color: #ecf0f1; }")
-        
+
         model_label = QLabel("Select Vosk Model:")
         model_label.setStyleSheet("color: #ecf0f1;")
         vosk_layout.addWidget(model_label)
@@ -183,7 +183,7 @@ class MainWindow(QMainWindow):
         # Process Button
         self.process_button = QPushButton("Generate Subtitles")
         self.process_button.setStyleSheet("QPushButton { background-color: #9b59b6; color: white; padding: 10px; border-radius: 4px; font-size: 14px; } QPushButton:hover { background-color: #a569bd; } QPushButton:disabled { background-color: #7f8c8d; }")
-  
+
       self.process_button.setEnabled(False)
         right_panel.addWidget(self.process_button)
 
@@ -197,37 +197,37 @@ class MainWindow(QMainWindow):
         style_layout = QFormLayout()
         style_layout.setSpacing(10)
         style_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
-        
+
         self.font_combo = QComboBox()
         self.font_combo.setStyleSheet("QComboBox { background-color: #34495e; color: #ecf0f1; border: 1px solid #2c3e50; padding: 6px; border-radius: 4px; }")
         self.font_size_spin = QSpinBox()
         self.font_size_spin.setStyleSheet("QSpinBox { background-color: #34495e; color: #ecf0f1; border: 1px solid #2c3e50; padding: 6px; border-radius: 4px; }")
         self.highlight_scale_spin = QDoubleSpinBox()
         self.highlight_scale_spin.setStyleSheet("QDoubleSpinBox { background-color: #34495e; color: #ecf0f1; border: 1px solid #2c3e50; padding: 6px; border-radius: 4px; }")
-        
+
         self.font_size_spin.setRange(10, 200)
         self.font_size_spin.setValue(40)
         self.highlight_scale_spin.setRange(1.0, 3.0)
         self.highlight_scale_spin.setValue(1.5)
         self.highlight_scale_spin.setSingleStep(0.1)
-        
+
         style_layout.addRow("Font:", self.font_combo)
         style_layout.addRow("Font Size:", self.font_size_spin)
         style_layout.addRow("Highlight Scale:", self.highlight_scale_spin)
-        
+
         self.text_color_button = QPushButton("Choose Text Color")
         self.text_color_button.setStyleSheet("QPushButton { background-color: #34495e; color: #ecf0f1; padding: 6px; border-radius: 4px; border: 1px solid #2c3e50; }")
         self.text_color = QColor(255, 255, 255)
         self._update_color_button(self.text_color_button
 , self.text_color)
         style_layout.addRow("Text Color:", self.text_color_button)
-        
+
         self.highlight_color_button = QPushButton("Choose Highlight Color")
         self.highlight_color_button.setStyleSheet("QPushButton { background-color: #34495e; color: #ecf0f1; padding: 6px; border-radius: 4px; border: 1px solid #2c3e50; }")
         self.highlight_color = QColor(255, 255, 0)
         self._update_color_button(self.highlight_color_button, self.highlight_color)
         style_layout.addRow("Highlight Color:", self.highlight_color_button)
-        
+
         style_group.setLayout(style_layout)
         right_panel.addWidget(style_group)
 
@@ -235,47 +235,47 @@ class MainWindow(QMainWindow):
         position_group = QGroupBox("Subtitle Position")
         position_layout = QVBoxLayout()
         position_layout.setSpacing(10)
-        
+
         position_info = QLabel("Drag the subtitle box in the preview")
         position_info.setStyleSheet("color: #bdc3c7;")
         position_layout.addWidget(position_info)
-        
+
         self.save_position_button = QPushButton("Save Position")
         self.save_position_button.setStyleSheet("QPushButton { background-color: #3498db; color: white; padding: 6px; border-radius: 4px; }")
         position_layout.addWidget(self.save_position_button)
-        
+
         self.position_label = QLabel("Position: 50px, 50px")
         self.position_label.setStyleSheet("color: #ecf0f1;")
         position_layout.addWidget(self.position_label)
 
         position_form = QFormLayout()
         position_form.setSpacing(8)
-        
+
         self.x_spin = QSpinBox()
         self.y_spin = QSpinBox()
         self.width_spin = QSpinBox()
         self.height_spin = QSpinBox()
-        
+
         for spin in [self.x_spin, self.y_spin, self.width_spin, self.height_spin]:
             spin.setStyleSheet("QSpinBox { background-color: #34495e; color: #ecf0f1; border: 1px solid #2c3e50; padding: 4px; border-radius: 4px; }")
-        
+
         self.x_spin.setRange(0, 2000)
         self.
 x_spin.setValue(50)
         position_form.addRow("X (px):", self.x_spin)
-        
+
         self.y_spin.setRange(0, 2000)
         self.y_spin.setValue(50)
         position_form.addRow("Y (px):", self.y_spin)
-        
+
         self.width_spin.setRange(100, 2000)
         self.width_spin.setValue(800)
         position_form.addRow("Width (px):", self.width_spin)
-        
+
         self.height_spin.setRange(50, 1000)
         self.height_spin.setValue(200)
         position_form.addRow("Height (px):", self.height_spin)
-        
+
         position_layout.addLayout(position_form)
         position_group.setLayout(position_layout)
         right_panel.addWidget(position_group)
@@ -284,17 +284,17 @@ x_spin.setValue(50)
         export_group = QGroupBox("Export")
         export_layout = QVBoxLayout()
         export_layout.setSpacing(10)
-        
+
         self.export_button = QPushButton("Export Video")
         self.export_button.setStyleSheet("QPushButton { background-color: #e67e22; color: white; padding: 10px; border-radius: 4px; font-size: 14px; } QPushButton:hover { background-color: #e88a32; } QPushButton:disabled { background-color: #7f8c8d; }")
         self.export_button.setEnabled(False)
         export_layout.addWidget(self.export_button)
-        
+
         self.export_label = QLabel("Exporting...")
         self.export_label.setStyleSheet("color: #f39c12;")
         self.export_label.setVisible(False)
         export_layout.addWidget(self.export_label)
-        
+
         export_group.setLayout(export_layout)
         right_panel.addWidget(export_group)
         right_panel.addStretch()
@@ -339,9 +339,9 @@ h.join("models", item))
         self.video_sink = QVideoWidget(self)
         self.media_player.setVideoOutput(self.video_sink)
         self.media_player.positionChanged.connect(self._update_time)
-        
+
         self.video_sink.hide()
-        
+
         self.frame_grabber = VideoFrameGrabber(self.video_sink)
         self.frame_grabber.frame_available.connect(self._update_preview_frame)
 
@@ -396,7 +396,7 @@ h.join("models", item))
         if not self.project:
             return
         pos = SubtitlePosition(self.x_spin.value(), self.y_spin.value(), self.width_spin.value(), self.height_spin.value())
-  
+
       self
 self.project.position = pos
         if self.preview_widget.scene.subtitle_box:
@@ -451,7 +451,7 @@ self.project.position = pos
         if fp:
             self.current_video_path = fp
             self.project.video_path = fp
-  
+
           self.media_player.setSource(QUrl.fromLocalFile(fp))
             self.process_button.setEnabled(True)
             self.export_button.setEnabled(False)
@@ -460,7 +460,7 @@ self.project.position = pos
 
     def _gen_subs(self):
         model_path = self.model_combo.currentText()
-        
+
         if not os.path.exists(model_path):
             models_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "models")
             try_model = os.path.join(models_dir, model_path)
@@ -472,7 +472,7 @@ self.project.position = pos
                     if os.path.exists(try_path):
                         model_path = try_path
                         break
-        
+
         if not os.path.exists(model_path):
             QMessageBox.warning(
                 self, "Model Not Found", 
@@ -484,7 +484,7 @@ self.project.position = pos
                 "and place them in the 'models' folder"
             )
             return
-        
+
         self.processing_label.setVisible(True)
         self.process_button.setEnabled(False)
         self.thread = ProcessingThread(self.current_video_path, model_path)
