@@ -21,7 +21,7 @@ class SubtitleBox(QGraphicsRectItem):
         self.resize_direction = None
         self.drag_start_pos = None
         self.original_rect = None
-    
+
     def _create_resize_handles(self):
         handle_positions = [(0, 0, "top-left"), (1, 0, "top-right"), (0, 1, "bottom-left"), (1, 1, "bottom-right"), (0.5, 0, "top"), (1, 0.5, "right"), (0.5, 1, "bottom"), (0, 0.5, "left")]
         for rel_x, rel_y, direction in handle_positions:
@@ -34,20 +34,20 @@ class SubtitleBox(QGraphicsRectItem):
             handle.setAcceptHoverEvents(True)
             handle.setData(0, direction)
             self.resize_handles.append(handle)
-    
+
     def update_resize_handles(self):
         handle_positions = [(0, 0, "top-left"), (1, 0, "top-right"), (0, 1, "bottom-left"), (1, 1, "bottom-right"), (0.5, 0, "top"), (1, 0.5, "right"), (0.5, 1, "bottom"), (0, 0.5, "left")]
         for handle, (rel_x, rel_y, _) in zip(self.resize_handles, handle_positions):
             handle.setPos(self.rect().width() * rel_x, self.rect().height() * rel_y)
-    
+
     def hoverEnterEvent(self, event):
         self.setPen(QPen(QColor(255, 255, 255, 200), 2, Qt.PenStyle.DashLine))
         super().hoverEnterEvent(event)
-    
+
     def hoverLeaveEvent(self, event):
         self.setPen(QPen(QColor(200, 200, 200, 200), 2, Qt.PenStyle.DashLine))
         super().hoverLeaveEvent(event)
-    
+
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             for handle in self.resize_handles:
@@ -61,7 +61,7 @@ class SubtitleBox(QGraphicsRectItem):
                 super().mousePressEvent(event)
         else:
             super().mousePressEvent(event)
-    
+
     def mouseMoveEvent(self, event):
         if self.resizing:
             delta = event.scenePos() - self.drag_start_pos
@@ -82,12 +82,12 @@ class SubtitleBox(QGraphicsRectItem):
             self.update_resize_handles()
         else:
             super().mouseMoveEvent(event)
-    
+
     def mouseReleaseEvent(self, event):
         self.resizing = False
         self.resize_direction = None
         super().mouseReleaseEvent(event)
-    
+
     def get_position(self) -> SubtitlePosition:
         pos = self.pos()
         rect = self.rect()
@@ -101,13 +101,13 @@ class SubtitleTextItem(QGraphicsTextItem):
         self.style = style
         self.is_highlighted = False
         self.set_default_appearance()
-    
+
     def set_default_appearance(self):
         font = QFont(self.style.font_family, self.style.font_size)
         self.setFont(font)
         self.setDefaultTextColor(QColor(self.style.text_color))
         self.is_highlighted = False
-    
+
     def set_highlighted_appearance(self):
         font = QFont(self.style.font_family, int(self.style.font_size * self.style.highlight_scale))
         self.setFont(font)
@@ -124,11 +124,11 @@ class VideoPreviewScene(QGraphicsScene):
         self.project = None
         self.current_time = 0.0
         self.position_changed_callback = None
-    
+
     def set_project(self, project: VideoProject):
         self.project = project
         self.update_subtitles()
-    
+
     def set_video_pixmap(self, pixmap: QPixmap):
         if self.video_item is None:
             self.video_item = QGraphicsPixmapItem(pixmap)
@@ -136,14 +136,14 @@ class VideoPreviewScene(QGraphicsScene):
         else:
             self.video_item.setPixmap(pixmap)
         self.video_item.setPos(0, 0)
-    
+
     def create_subtitle_box(self, position: SubtitlePosition):
         if self.subtitle_box is not None:
             self.removeItem(self.subtitle_box)
         self.subtitle_box = SubtitleBox(position.x, position.y, position.width, position.height)
         self.addItem(self.subtitle_box)
         self.subtitle_box.setZValue(10)
-    
+
     def update_subtitles(self):
         if self.project is None:
             return
@@ -177,11 +177,11 @@ class VideoPreviewScene(QGraphicsScene):
                 x_offset += word_width + 10
             x_offset = 20
             y_offset += style.font_size * 1.5
-    
+
     def update_time(self, time: float):
         self.current_time = time
         self.update_subtitles()
-    
+
     def mouseReleaseEvent(self, event):
         if self.subtitle_box and self.position_changed_callback:
             position = self.subtitle_box.get_position()
@@ -191,7 +191,7 @@ class VideoPreviewScene(QGraphicsScene):
 
 class VideoPreviewWidget(QWidget):
     position_changed = pyqtSignal(SubtitlePosition)
-    
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.project = None
@@ -211,45 +211,45 @@ class VideoPreviewWidget(QWidget):
         self.update_timer = QTimer(self)
         self.update_timer.timeout.connect(self._update_frame)
         self.setMinimumSize(400, 300)
-    
+
     def set_project(self, project: VideoProject):
         self.project = project
         self.scene.set_project(project)
         self.scene.create_subtitle_box(project.position)
-    
+
     def set_video_frame(self, pixmap: QPixmap):
         self.scene.set_video_pixmap(pixmap)
         self.graphics_view.fitInView(self.scene.itemsBoundingRect(), Qt.AspectRatioMode.KeepAspectRatio)
-    
+
     def update_time(self, time: float):
         self.current_time = time
         self.scene.update_time(time)
-    
+
     def set_playing(self, playing: bool):
         self.is_playing = playing
         if playing:
             self.update_timer.start(33)
         else:
             self.update_timer.stop()
-    
+
     def _update_frame(self):
         if self.project:
             self.scene.update_time(self.current_time)
-    
+
     def _on_position_changed(self, position: SubtitlePosition):
         if self.project:
             self.project.position = position
         self.position_changed.emit(position)
-    
+
     def get_current_position(self) -> SubtitlePosition:
         if self.scene.subtitle_box:
             return self.scene.subtitle_box.get_position()
         return self.project.position if self.project else SubtitlePosition()
-    
+
     def resizeEvent(self, event):
         if self.scene.video_item:
             self.graphics_view.fitInView(self.scene.itemsBoundingRect(), Qt.AspectRatioMode.KeepAspectRatio)
         super().resizeEvent(event)
-    
+
     def sizeHint(self):
         return QSize(800, 600)

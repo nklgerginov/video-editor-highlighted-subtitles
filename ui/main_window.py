@@ -62,20 +62,18 @@ class MainWindow(QMainWindow):
         self._setup_media_player()
         self.playback_timer = QTimer(self)
         self.playback_timer.timeout.connect(self._update_playback)
-    
+
     def _setup_ui(self):
         main_widget = QWidget(self)
         self.setCentralWidget(main_widget)
         main_layout = QHBoxLayout(main_widget)
         main_layout.setContentsMargins(10, 10, 10, 10)
         main_layout.setSpacing(10)
-        
         left_panel = QVBoxLayout()
         left_panel.setSpacing(10)
         self.preview_widget = VideoPreviewWidget()
         self.preview_widget.setMinimumSize(800, 450)
         left_panel.addWidget(self.preview_widget, stretch=1)
-        
         controls_group = QGroupBox("Video Controls")
         controls_layout = QHBoxLayout()
         self.play_button = QPushButton("Play")
@@ -89,10 +87,8 @@ class MainWindow(QMainWindow):
         controls_layout.addWidget(self.time_label)
         controls_group.setLayout(controls_layout)
         left_panel.addWidget(controls_group)
-        
         right_panel = QVBoxLayout()
         right_panel.setSpacing(10)
-        
         vosk_group = QGroupBox("Vosk Model")
         vosk_layout = QVBoxLayout()
         self.model_combo = QComboBox()
@@ -103,14 +99,12 @@ class MainWindow(QMainWindow):
         vosk_layout.addWidget(self.model_combo)
         vosk_group.setLayout(vosk_layout)
         right_panel.addWidget(vosk_group)
-        
         self.process_button = QPushButton("Generate Subtitles")
         self.process_button.setEnabled(False)
         right_panel.addWidget(self.process_button)
         self.processing_label = QLabel("Processing...")
         self.processing_label.setVisible(False)
         right_panel.addWidget(self.processing_label)
-        
         style_group = QGroupBox("Subtitle Style")
         style_layout = QFormLayout()
         self.font_combo = QComboBox()
@@ -135,7 +129,6 @@ class MainWindow(QMainWindow):
         style_layout.addRow("Highlight Color:", self.highlight_color_button)
         style_group.setLayout(style_layout)
         right_panel.addWidget(style_group)
-        
         position_group = QGroupBox("Subtitle Position (Drag & Drop)")
         position_layout = QVBoxLayout()
         position_layout.addWidget(QLabel("Drag the subtitle box in the preview to position it"))
@@ -163,7 +156,6 @@ class MainWindow(QMainWindow):
         position_layout.addLayout(position_form)
         position_group.setLayout(position_layout)
         right_panel.addWidget(position_group)
-        
         export_group = QGroupBox("Export")
         export_layout = QVBoxLayout()
         self.export_button = QPushButton("Export Video with Subtitles")
@@ -175,10 +167,9 @@ class MainWindow(QMainWindow):
         export_group.setLayout(export_layout)
         right_panel.addWidget(export_group)
         right_panel.addStretch()
-        
         main_layout.addLayout(left_panel, stretch=2)
         main_layout.addLayout(right_panel, stretch=1)
-    
+
     def _setup_connections(self):
         self.play_button.clicked.connect(self._play_video)
         self.pause_button.clicked.connect(self._pause_video)
@@ -196,7 +187,7 @@ class MainWindow(QMainWindow):
         self.height_spin.valueChanged.connect(self._update_position_from_spins)
         self.preview_widget.position_changed.connect(self._update_position_spins)
         self.export_button.clicked.connect(self._export_video)
-    
+
     def _setup_media_player(self):
         self.media_player = QMediaPlayer(self)
         self.audio_output = QAudioOutput(self)
@@ -204,7 +195,7 @@ class MainWindow(QMainWindow):
         self.video_sink = QVideoWidget(self)
         self.media_player.setVideoOutput(self.video_sink)
         self.media_player.positionChanged.connect(self._update_time_display)
-    
+
     def _load_fonts(self):
         font_db = QFontDatabase()
         families = font_db.families()
@@ -214,14 +205,14 @@ class MainWindow(QMainWindow):
             if font in families:
                 self.font_combo.setCurrentText(font)
                 break
-    
+
     def _populate_font_combo(self):
         self.font_combo.clear()
         self.font_combo.addItems(QFontDatabase().families())
-    
+
     def _update_color_button(self, button, color):
         button.setStyleSheet(f"background-color: {color.name()}; color: {'black' if color.lightness() > 128 else 'white'};")
-    
+
     def _update_style(self):
         if not self.project:
             self.project = VideoProject()
@@ -234,28 +225,28 @@ class MainWindow(QMainWindow):
         )
         if self.preview_widget.project:
             self.preview_widget.set_project(self.project)
-    
+
     def _choose_text_color(self):
         color = QColorDialog.getColor(self.text_color, self, "Choose Text Color")
         if color.isValid():
             self.text_color = color
             self._update_color_button(self.text_color_button, color)
             self._update_style()
-    
+
     def _choose_highlight_color(self):
         color = QColorDialog.getColor(self.highlight_color, self, "Choose Highlight Color")
         if color.isValid():
             self.highlight_color = color
             self._update_color_button(self.highlight_color_button, color)
             self._update_style()
-    
+
     def _update_position_spins(self, position: SubtitlePosition):
         self.x_spin.setValue(position.x)
         self.y_spin.setValue(position.y)
         self.width_spin.setValue(position.width)
         self.height_spin.setValue(position.height)
         self.position_label.setText(f"Position: {position.x}px, {position.y}px")
-    
+
     def _update_position_from_spins(self):
         if not self.project:
             return
@@ -266,13 +257,13 @@ class MainWindow(QMainWindow):
             self.preview_widget.scene.subtitle_box.setPos(position.x, position.y)
             self.preview_widget.scene.subtitle_box.update_resize_handles()
         self.position_label.setText(f"Position: {position.x}px, {position.y}px")
-    
+
     def _save_position(self):
         if self.preview_widget.scene.subtitle_box:
             position = self.preview_widget.scene.subtitle_box.get_position()
             self.project.position = position
             self._update_position_spins(position)
-    
+
     def _update_time_display(self, position_ms):
         seconds = position_ms / 1000
         hours = int(seconds // 3600)
@@ -281,11 +272,11 @@ class MainWindow(QMainWindow):
         self.time_label.setText(f"{hours:02d}:{minutes:02d}:{secs:02d}")
         self.preview_widget.update_time(seconds)
         self.current_time = seconds
-    
+
     def _update_playback(self):
         if self.media_player.duration() > 0:
             self.media_player.setPosition(self.media_player.position() + 33)
-    
+
     def _play_video(self):
         if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
             return
@@ -294,15 +285,15 @@ class MainWindow(QMainWindow):
         if self.current_video_path:
             self.media_player.play()
             self.preview_widget.set_playing(True)
-    
+
     def _pause_video(self):
         self.media_player.pause()
         self.preview_widget.set_playing(False)
-    
+
     def _stop_video(self):
         self.media_player.stop()
         self.preview_widget.set_playing(False)
-    
+
     def _load_video(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Open Video File", "", "Video Files (*.mp4 *.avi *.mov *.mkv)")
         if file_path:
@@ -311,7 +302,7 @@ class MainWindow(QMainWindow):
             self.media_player.setSource(file_path)
             self.process_button.setEnabled(True)
             self._load_first_frame()
-    
+
     def _load_first_frame(self):
         try:
             from moviepy import VideoFileClip
@@ -325,7 +316,7 @@ class MainWindow(QMainWindow):
             video.close()
         except Exception as e:
             QMessageBox.warning(self, "Error", f"Failed to load first frame: {str(e)}")
-    
+
     def _generate_subtitles(self):
         vosk_model_path = self.model_combo.currentText()
         if not os.path.exists(vosk_model_path):
@@ -344,7 +335,7 @@ https://alphacephei.com/vosk/models")
         self.processing_thread.processing_complete.connect(self._on_processing_complete)
         self.processing_thread.error_occurred.connect(self._on_processing_error)
         self.processing_thread.start()
-    
+
     def _on_processing_complete(self, project: VideoProject):
         self.project = project
         self.processing_label.setVisible(False)
@@ -354,12 +345,12 @@ https://alphacephei.com/vosk/models")
         self.preview_widget.set_project(self.project)
         self._update_position_spins(self.project.position)
         QMessageBox.information(self, "Success", "Subtitles generated successfully!")
-    
+
     def _on_processing_error(self, error: str):
         self.processing_label.setVisible(False)
         self.process_button.setEnabled(True)
         QMessageBox.critical(self, "Error", f"Processing failed: {error}")
-    
+
     def _export_video(self):
         if not self.project:
             QMessageBox.warning(self, "Error", "No project to export. Generate subtitles first.")
@@ -375,18 +366,18 @@ https://alphacephei.com/vosk/models")
         self.export_thread.export_complete.connect(self._on_export_complete)
         self.export_thread.error_occurred.connect(self._on_export_error)
         self.export_thread.start()
-    
+
     def _on_export_complete(self, output_path: str):
         self.export_label.setVisible(False)
         self.export_button.setEnabled(True)
         QMessageBox.information(self, "Success", f"Video exported successfully to:
 {output_path}")
-    
+
     def _on_export_error(self, error: str):
         self.export_label.setVisible(False)
         self.export_button.setEnabled(True)
         QMessageBox.critical(self, "Error", f"Export failed: {error}")
-    
+
     def closeEvent(self, event):
         self._stop_video()
         super().closeEvent(event)

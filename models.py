@@ -40,9 +40,6 @@ class SubtitlePosition:
     y: int = 50
     width: int = 800
     height: int = 200
-    
-    def to_dict(self) -> dict:
-        return {"x": self.x, "y": self.y, "width": self.width, "height": self.height}
 
 
 @dataclass
@@ -52,15 +49,3 @@ class VideoProject:
     subtitles: List[SubtitleLine] = field(default_factory=list)
     style: SubtitleStyle = field(default_factory=SubtitleStyle)
     position: SubtitlePosition = field(default_factory=SubtitlePosition)
-    
-    def get_all_words(self) -> List[Word]:
-        words = []
-        for line in self.subtitles:
-            words.extend(line.words)
-        return words
-    
-    def get_active_word_at_time(self, time: float) -> Optional[Word]:
-        for word in self.get_all_words():
-            if word.start_time <= time < word.end_time:
-                return word
-        return None
