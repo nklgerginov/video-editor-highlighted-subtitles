@@ -59,7 +59,8 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Video Editor - Highlighted Subtitles"
 )
         self.setMinimumSize(1200, 800)
-        self.project = VideoProject()self.current_video_path = ""
+        self.project = VideoProject()
+        self.current_video_path = ""
         self.current_time = 0.0
         self._setup_ui()
         self._setup_connections()
@@ -110,8 +111,7 @@ class MainWindow(QMainWindow):
   right_panel.addWidget(vosk_group)
 
         self.process_button = QPushButton("Generate Subtitles")
- 
-       self.process_button.setEnabled(False)
+        self.process_button.setEnabled(False)
         right_panel.addWidget(self.process_button)
 
         self.processing_label = QLabel("Processing...")
@@ -121,8 +121,7 @@ class MainWindow(QMainWindow):
         style_group = QGroupBox("Subtitle Style")
         style_layout = QFormLayout()
         self.font_combo = QComboBox()
-        self.font_combo.clear()
-        self.font_combo.addItems(QFontDatabase.families())
+        self._populate_font_combo()
         style_layout.addRow("Font:", self.font_combo)
         self.font_size_spin = QSpinBox()
         self.font_size_spin.setRange(10, 200)
@@ -148,11 +147,10 @@ class MainWindow(QMainWindow):
         position_layout = QVBoxLayout()
         position_layout.addWidget(QLabel("Drag the subtitle box in the preview"))
         self.save_position_button = QPushButton("Save Position")
-        position_layout.
-addWidget(self.save_position_button)
-        self.position_label = QLabel("Position: 50px, 50px")
-   
-     position_layout.addWidget(self.position_label)
+        position_layout.addWidget(self.save_position_button)
+        self.posit
+ion_label = QLabel("Position: 50px, 50px")
+        position_layout.addWidget(self.position_label)
 
         position_form = QFormLayout()
         self.x_spin = QSpinBox()
@@ -196,11 +194,10 @@ addWidget(self.save_position_button)
         self.stop_button.clicked.connect(self._stop)
         self.process_button.clicked.connect(self._gen_subs)
         self.font_combo.currentTextChanged.connect(self._update_style)
-        self.font_size_spin.valueChanged.conn
-ect(self._update_style)
-        self.highlight_scale_spin.valueChanged.connect(self._update_style)
- 
-       self.text_color_button.clicked.connect(self._choose_text_color)
+        self.font_size_spin.valueChanged.connect(self._update_style)
+        self.highlight_scale_sp
+in.valueChanged.connect(self._update_style)
+        self.text_color_button.clicked.connect(self._choose_text_color)
         self.highlight_color_button.clicked.connect(self._choose_highlight_color)
         self.save_position_button.clicked.connect(self._save_pos)
         self.x_spin.valueChanged.connect(self._update_pos)
@@ -219,13 +216,17 @@ ect(self._update_style)
         self.media_player.positionChanged.connect(self._update_time)
 
     def _load_fonts(self):
-        families = QFontDatabase.families()
+        fdb = QFontDatabase()
         self.font_combo.clear()
-        self.font_combo.addItems(families)
+        self.font_combo.addItems(fdb.families())
         for f in ["Arial", "Helvetica"]:
-            if f in families:
+            if f in fdb.families():
                 self.font_combo.setCurrentText(f)
                 break
+
+    def _populate_font_combo(self):
+        self.font_combo.clear()
+        self.font_combo.addItems(QFontDatabase().families())
 
     def _update_color_button(self, button, color):
         button.setStyleSheet(f"background-color: {color.name()}; color: {'black' if color.lightness() > 128 else 'white'};")
@@ -238,26 +239,11 @@ ect(self._update_style)
             font_size=self.font_size_spin.value(),
             highlight_scale=self.highlight_scale_spin.value(),
             text_color=self.text_color.name(),
-            highlight_color=self.highlight_color.name()
+            highlight_color=self.highlight_co
+lor.name()
         )
         if self.preview_widget.project:
-            
-self.preview_widget.set_project(self.project)
-
-    def _choose_text_color(self):
-        color = QC
-olorDialog.getColor(self.text_color, self, "Choose Text Color")
-        if color.isValid():
-            self.text_color = color
-            self._update_color_button(self.text_color_button, color)
-            self._update_style()
-
-    def _choose_highlight_color(self):
-        color = QColorDialog.getColor(self.highlight_color, self, "Choose Highlight Color")
-        if color.isValid():
-            self.highlight_color = color
-            self._update_color_button(self.highlight_color_button, color)
-            self._update_style()
+            self.preview_widget.set_project(self.project)
 
     def _update_pos_spins(self, pos):
         self.x_spin.setValue(pos.x)
@@ -292,14 +278,12 @@ olorDialog.getColor(self.text_color, self, "Choose Text Color")
             return
         if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
             return
-        
-self.media_player.play()
+        self.media_player.play()
 
     def _pause(self):
         self.media_player.pause()
 
-    def _stop(s
-elf):
+    def _stop(self):
         self.media_player.stop()
 
     def _load_video(self):
@@ -311,7 +295,8 @@ elf):
             self.process_button.setEnabled(True)
 
     def _gen_subs(self):
-        vmp = self.model_combo.currentText()
+        vmp = self.model_combo.currentTe
+xt()
         if not os.path.exists(vmp):
             QMessageBox.warning(self, "Model Not Found", "Vosk model not found. Download from: https://alphacephei.com/vosk/models")
             return
@@ -344,11 +329,9 @@ elf):
         self.export_label.setVisible(True)
         self.export_button.setEnabled(False)
         self.exp_thread = ExportThread(self.project, op)
-        self.exp_thread.export_complete.connect(self._on_exp_d
-one)
+        self.exp_thread.export_complete.connect(self._on_exp_done)
         self.exp_thread.error_occurred.connect(self._on_exp_err)
-       
- self.exp_thread.start()
+        self.exp_thread.start()
 
     def _on_exp_done(self, path):
         self.export_label.setVisible(False)
@@ -361,6 +344,7 @@ one)
         QMessageBox.critical(self, "Error", f"Failed: {error}")
 
     def closeEvent(self, event):
+
         self._stop()
         super().closeEvent(event)
 
