@@ -56,8 +56,7 @@ class ExportThread(QThread):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Video Editor - Highlighted Subtitles"
-)
+        self.setWindowTitle("Video Editor - Highlighted Subtitles")
         self.setMinimumSize(1200, 800)
         self.project = VideoProject()
         self.current_video_path = ""
@@ -107,8 +106,7 @@ class MainWindow(QMainWindow):
         vosk_layout.addWidget(QLabel("Select Vosk Model:"))
         vosk_layout.addWidget(self.model_combo)
         vosk_group.setLayout(vosk_layout)
-      
-  right_panel.addWidget(vosk_group)
+        right_panel.addWidget(vosk_group)
 
         self.process_button = QPushButton("Generate Subtitles")
         self.process_button.setEnabled(False)
@@ -121,7 +119,8 @@ class MainWindow(QMainWindow):
         style_group = QGroupBox("Subtitle Style")
         style_layout = QFormLayout()
         self.font_combo = QComboBox()
-        self._populate_font_combo()
+        self.font_combo.clear()
+        self.font_combo.addItems(QFontDatabase.families())
         style_layout.addRow("Font:", self.font_combo)
         self.font_size_spin = QSpinBox()
         self.font_size_spin.setRange(10, 200)
@@ -148,8 +147,7 @@ class MainWindow(QMainWindow):
         position_layout.addWidget(QLabel("Drag the subtitle box in the preview"))
         self.save_position_button = QPushButton("Save Position")
         position_layout.addWidget(self.save_position_button)
-        self.posit
-ion_label = QLabel("Position: 50px, 50px")
+        self.position_label = QLabel("Position: 50px, 50px")
         position_layout.addWidget(self.position_label)
 
         position_form = QFormLayout()
@@ -195,8 +193,7 @@ ion_label = QLabel("Position: 50px, 50px")
         self.process_button.clicked.connect(self._gen_subs)
         self.font_combo.currentTextChanged.connect(self._update_style)
         self.font_size_spin.valueChanged.connect(self._update_style)
-        self.highlight_scale_sp
-in.valueChanged.connect(self._update_style)
+        self.highlight_scale_spin.valueChanged.connect(self._update_style)
         self.text_color_button.clicked.connect(self._choose_text_color)
         self.highlight_color_button.clicked.connect(self._choose_highlight_color)
         self.save_position_button.clicked.connect(self._save_pos)
@@ -216,17 +213,13 @@ in.valueChanged.connect(self._update_style)
         self.media_player.positionChanged.connect(self._update_time)
 
     def _load_fonts(self):
-        fdb = QFontDatabase()
+        families = QFontDatabase.families()
         self.font_combo.clear()
-        self.font_combo.addItems(fdb.families())
+        self.font_combo.addItems(families)
         for f in ["Arial", "Helvetica"]:
-            if f in fdb.families():
+            if f in families:
                 self.font_combo.setCurrentText(f)
                 break
-
-    def _populate_font_combo(self):
-        self.font_combo.clear()
-        self.font_combo.addItems(QFontDatabase().families())
 
     def _update_color_button(self, button, color):
         button.setStyleSheet(f"background-color: {color.name()}; color: {'black' if color.lightness() > 128 else 'white'};")
@@ -239,11 +232,24 @@ in.valueChanged.connect(self._update_style)
             font_size=self.font_size_spin.value(),
             highlight_scale=self.highlight_scale_spin.value(),
             text_color=self.text_color.name(),
-            highlight_color=self.highlight_co
-lor.name()
+            highlight_color=self.highlight_color.name()
         )
         if self.preview_widget.project:
             self.preview_widget.set_project(self.project)
+
+    def _choose_text_color(self):
+        color = QColorDialog.getColor(self.text_color, self, "Choose Text Color")
+        if color.isValid():
+            self.text_color = color
+            self._update_color_button(self.text_color_button, color)
+            self._update_style()
+
+    def _choose_highlight_color(self):
+        color = QColorDialog.getColor(self.highlight_color, self, "Choose Highlight Color")
+        if color.isValid():
+            self.highlight_color = color
+            self._update_color_button(self.highlight_color_button, color)
+            self._update_style()
 
     def _update_pos_spins(self, pos):
         self.x_spin.setValue(pos.x)
@@ -295,8 +301,7 @@ lor.name()
             self.process_button.setEnabled(True)
 
     def _gen_subs(self):
-        vmp = self.model_combo.currentTe
-xt()
+        vmp = self.model_combo.currentText()
         if not os.path.exists(vmp):
             QMessageBox.warning(self, "Model Not Found", "Vosk model not found. Download from: https://alphacephei.com/vosk/models")
             return
@@ -344,7 +349,6 @@ xt()
         QMessageBox.critical(self, "Error", f"Failed: {error}")
 
     def closeEvent(self, event):
-
         self._stop()
         super().closeEvent(event)
 
