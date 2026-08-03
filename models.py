@@ -1,8 +1,4 @@
 """Data models for the video editor with highlighted subtitles."""
-<<<<<<< HEAD
-
-=======
->>>>>>> a71566016695e21c407a34efabef2157bae5f31d
 from dataclasses import dataclass, field
 from typing import List, Optional
 
@@ -20,17 +16,10 @@ class SubtitleLine:
     words: List[Word] = field(default_factory=list)
     start_time: float = 0.0
     end_time: float = 0.0
-<<<<<<< HEAD
 
     def add_word(self, word: Word):
         self.words.append(word)
 
-=======
-    
-    def add_word(self, word: Word):
-        self.words.append(word)
-    
->>>>>>> a71566016695e21c407a34efabef2157bae5f31d
     @property
     def text(self) -> str:
         return " ".join(word.text for word in self.words)
@@ -59,8 +48,16 @@ class VideoProject:
     vosk_model_path: str = ""
     subtitles: List[SubtitleLine] = field(default_factory=list)
     style: SubtitleStyle = field(default_factory=SubtitleStyle)
-<<<<<<< HEAD
     position: SubtitlePosition = field(default_factory=SubtitlePosition)
-=======
-    position: SubtitlePosition = field(default_factory=SubtitlePosition)
->>>>>>> a71566016695e21c407a34efabef2157bae5f31d
+    
+    def get_all_words(self) -> List[Word]:
+        words = []
+        for line in self.subtitles:
+            words.extend(line.words)
+        return words
+    
+    def get_active_word_at_time(self, time: float) -> Optional[Word]:
+        for word in self.get_all_words():
+            if word.start_time <= time < word.end_time:
+                return word
+        return None
