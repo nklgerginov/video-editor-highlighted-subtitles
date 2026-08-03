@@ -306,8 +306,7 @@ tValue(50)
         if os.path.exists(models_dir):
             for item in os.listdir(models_dir):
                 if os.path.isdir(os.path.join(models_dir, item)):
-                    self.model_combo.addItem(os.pat
-h.join("models", item))
+                    self.model_combo.addItem(os.path.join("models", item))
         self.model_combo.addItem("vosk-model-en-us-0.22-lgraph")
         self.model_combo.addItem("vosk-model-small-en-us-0.15")
 
@@ -347,8 +346,7 @@ h.join("models", item))
         families = QFontDatabase.families()
         self.font_combo.clear()
         self.font_combo.addItems(families)
-        for f in ["Ar
-ial", "Helvetica", "Roboto", "Segoe UI"]:
+        for f in ["Arial"", "Helvetica", "Roboto", "Segoe UI"]:
             if f in families:
                 self.font_combo.setCurrentText(f)
                 break
@@ -474,7 +472,8 @@ media_player.setSource(QUrl.fromLocalFile(fp))
             QMessageBox.warning(
                 self, "Model Not Found", 
                 f"Vosk model not found at: {model_path}
-\n"
+
+"
                 "Download models from: https://alphacephei.com/vosk/models
 "
                 "and place them in the 'models' folder"
@@ -502,7 +501,8 @@ Success", "Subtitles generated successfully!")
     def _on_proc_err(self, error):
         self.processing_label.setVisible(False)
         self.process_button.setEnabled(True)
-        QMessageBox.critical(self, "Error", f"Failed to generate subtitles:\n{error}")
+        QMessageBox.critical(self, "Error", f"Failed to generate subtitles:
+{error}")
 
     def _export(self):
         default_name = os.path.splitext(os.path.basename(self.current_video_path))[0] + "_subtitled.mp4"
@@ -521,12 +521,14 @@ Success", "Subtitles generated successfully!")
     def _on_exp_done(self, path):
         self.export_label.setVisible(False)
         self.export_button.setEnabled(True)
-        QMessageBox.information(self, "Success", f"Video exported to:\n{path}")
+        QMessageBox.information(self, "Success", f"Video exported to:
+{path}")
 
     def _on_exp_err(self, error):
         self.export_label.setVisible(False)
         self.export_button.setEnabled(True)
-        QMessageBox.critical(self, "Error", f"Export failed:\n{error}")
+        QMessageBox.critical(self, "Error", f"Export failed:
+{error}")
 
     def closeEvent(self, event):
         self._stop()
