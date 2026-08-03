@@ -56,7 +56,8 @@ class ExportThread(QThread):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Video Editor - Highlighted Subtitles"
+        self.setWindowTitle("Video Editor - Highlighted Subt
+itles"
 )
         self.setMinimumSize(1200, 800)
         self.project = VideoProject()
@@ -107,10 +108,11 @@ class MainWindow(QMainWindow):
         vosk_layout.addWidget(QLabel("Select Vosk Model:"))
         vosk_layout.addWidget(self.model_combo)
         vosk_group.setLayout(vosk_layout)
-      
-  right_panel.addWidget(vosk_group)
+
+        right_panel.addWidget(vosk_group)
 
         self.process_button = QPushButton("Generate Subtitles")
+
         self.process_button.setEnabled(False)
         right_panel.addWidget(self.process_button)
 
@@ -151,6 +153,7 @@ class MainWindow(QMainWindow):
         position_layout.
 addWidget(self.save_position_button)
         self.position_label = QLabel("Position: 50px, 50px")
+
         position_layout.addWidget(self.position_label)
 
         position_form = QFormLayout()
@@ -198,6 +201,7 @@ addWidget(self.save_position_button)
         self.font_size_spin.valueChanged.conn
 ect(self._update_style)
         self.highlight_scale_spin.valueChanged.connect(self._update_style)
+
         self.text_color_button.clicked.connect(self._choose_text_color)
         self.highlight_color_button.clicked.connect(self._choose_highlight_color)
         self.save_position_button.clicked.connect(self._save_pos)
@@ -239,11 +243,12 @@ ect(self._update_style)
             highlight_color=self.highlight_color.name()
         )
         if self.preview_widget.project:
-            
+
 self.preview_widget.set_project(self.project)
 
     def _choose_text_color(self):
-        color = QColorDialog.getColor(self.text_color, self, "Choose Text Color")
+        color = QC
+olorDialog.getColor(self.text_color, self, "Choose Text Color")
         if color.isValid():
             self.text_color = color
             self._update_color_button(self.text_color_button, color)
@@ -289,13 +294,14 @@ self.preview_widget.set_project(self.project)
             return
         if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
             return
-        
+
 self.media_player.play()
 
     def _pause(self):
         self.media_player.pause()
 
-    def _stop(self):
+    def _stop(s
+elf):
         self.media_player.stop()
 
     def _load_video(self):
@@ -343,7 +349,8 @@ self.media_player.play()
         self.exp_thread.export_complete.connect(self._on_exp_d
 one)
         self.exp_thread.error_occurred.connect(self._on_exp_err)
-        self.exp_thread.start()
+
+            self.exp_thread.start()
 
     def _on_exp_done(self, path):
         self.export_label.setVisible(False)
