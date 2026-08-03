@@ -104,8 +104,7 @@ class MainWindow(QMainWindow):
         dark_palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.black)
-        dark_pal
-ette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
+        dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
         dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.ButtonText, QColor(127, 127, 127))
         QApplication.setPalette(dark_palette)
         QApplication.setStyle("Fusion")
@@ -143,7 +142,6 @@ ette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 
         self.pause_button = QPushButton("Pause")
         self.pause_button.setStyleSheet("QPushButton { background-color: #f39c12; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #f5ab35; }")
         self.stop_button = QPushButton("Stop")
-
         self.stop_button.setStyleSheet("QPushButton { background-color: #e74c3c; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #ec7063; }")
         
         controls_layout.addWidget(self.upload_button)
@@ -183,7 +181,6 @@ ette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 
         self.process_button = QPushButton("Generate Subtitles")
         self.process_button.setStyleSheet("QPushButton { background-color: #9b59b6; color: white; padding: 10px; border-radius: 4px; font-size: 14px; } QPushButton:hover { background-color: #a569bd; } QPushButton:disabled { background-color: #7f8c8d; }")
         self.process_button.setEnabled(False)
-
         right_panel.addWidget(self.process_button)
 
         self.processing_label = QLabel("Processing...")
@@ -218,7 +215,7 @@ ette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 
         self.text_color_button.setStyleSheet("QPushButton { background-color: #34495e; color: #ecf0f1; padding: 6px; border-radius: 4px; border: 1px solid #2c3e50; }")
         self.text_color = QColor(255, 255, 255)
         self._update_color_button(self.text_color_button, self.te
-xt_color)
+text_color)
         style_layout.addRow("Text Color:", self.text_color_button)
         
         self.highlight_color_button = QPushButton("Choose Highlight Color")
@@ -449,7 +446,6 @@ ial", "Helvetica", "Roboto", "Segoe UI"]:
             self.current_video_path = fp
             self.project.video_path = fp
             self.media_player.setSource(QUrl.fromLocalFile(fp))
-
             self.process_button.setEnabled(True)
             self.export_button.setEnabled(False)
             self._update_time(0)
