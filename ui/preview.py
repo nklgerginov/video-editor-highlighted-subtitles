@@ -13,14 +13,14 @@ from models import VideoProject, Word, SubtitleLine, SubtitleStyle, SubtitlePosi
 class SubtitleBox(QGraphicsRectItem):
     """Resizable and draggable subtitle box with 8 resize handles."""
 
-    def __init__(self, x: int, y: int, width: int, height: int, parent=None):
+    def __init__(self, x: int, y: int, width: int, height: int, parent=None, bg_opacity: int = 128):
         super().__init__(0, 0, width, height, parent)
         self.setPos(x, y)
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, True)
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable, True)
         self.setAcceptHoverEvents(True)
         self.setPen(QPen(QColor(200, 200, 200, 200), 2, Qt.PenStyle.DashLine))
-        self.setBrush(QBrush(QColor(0, 0, 0, 128)))
+        self.setBrush(QBrush(QColor(0, 0, 0, bg_opacity)))
 
         self.resize_handle_size = 10
         self.resize_handles = []
@@ -155,8 +155,11 @@ class VideoPreviewScene(QGraphicsScene):
     def create_subtitle_box(self, position: SubtitlePosition):
         if self.subtitle_box is not None:
             self.removeItem(self.subtitle_box)
+        bg_opacity = 128
+        if self.project and self.project.style:
+            bg_opacity = self.project.style.background_opacity
         self.subtitle_box = SubtitleBox(
-            position.x, position.y, position.width, position.height
+            position.x, position.y, position.width, position.height, bg_opacity=bg_opacity
         )
         self.addItem(self.subtitle_box)
         self.subtitle_box.setZValue(10)
@@ -185,20 +188,20 @@ class VideoPreviewScene(QGraphicsScene):
                 is_active = (self.current_time >= word.start_time and
                            self.current_time < word.end_time)
 
-                text_item = QGraphicsTextItem(word.text)
+                text_item = QGraphicsTextItem(word.text, self.subtitle_box)
                 if is_active:
-                    font = QFont(style.font_family, int(style.font_size * style.highlight_scale))
+                    font = QFont(style.font_family, style.highlight_font_size)
+                    font.setBold(style.bold)
+                    font.setItalic(style.italic)
                     text_item.setDefaultTextColor(QColor(style.highlight_color))
                 else:
                     font = QFont(style.font_family, style.font_size)
+                    font.setBold(style.bold)
+                    font.setItalic(style.italic)
                     text_item.setDefaultTextColor(QColor(style.text_color))
                 text_item.setFont(font)
 
-                text_item.setPos(
-                    self.subtitle_box.pos().x() + x_offset,
-                    self.subtitle_box.pos().y() + y_offset
-                )
-                self.addItem(text_item)
+                text_item.setPos(x_offset, y_offset)
                 text_item.setZValue(20)
                 self.subtitle_items.append(text_item)
 
@@ -217,6 +220,7 @@ class VideoPreviewScene(QGraphicsScene):
         if self.subtitle_box and self.position_changed_callback:
             position = self.subtitle_box.get_position()
             self.position_changed_callback(position)
+            self.update_subtitles()
         super().mouseReleaseEvent(event)
 
 

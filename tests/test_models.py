@@ -25,7 +25,7 @@ class TestModels(unittest.TestCase):
         style = SubtitleStyle()
         self.assertEqual(style.font_family, "Arial")
         self.assertEqual(style.font_size, 40)
-        self.assertEqual(style.highlight_scale, 1.5)
+        self.assertEqual(style.highlight_font_size, 60)
         self.assertEqual(style.text_color, "#FFFFFF")
         self.assertEqual(style.highlight_color, "#FFFF00")
 

@@ -1,6 +1,6 @@
 """Data models for the video editor with highlighted subtitles."""
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 
 @dataclass
@@ -29,9 +29,15 @@ class SubtitleLine:
 class SubtitleStyle:
     font_family: str = "Arial"
     font_size: int = 40
-    highlight_scale: float = 1.5
+    highlight_font_size: int = 60
     text_color: str = "#FFFFFF"
     highlight_color: str = "#FFFF00"
+    bold: bool = True
+    italic: bool = False
+    stroke_color: str = "#000000"
+    stroke_width: int = 2
+    background_opacity: int = 128
+    animation: str = "none"
 
 
 @dataclass
@@ -61,3 +67,71 @@ class VideoProject:
             if word.start_time <= time < word.end_time:
                 return word
         return None
+
+STYLE_PRESETS: Dict[str, SubtitleStyle] = {
+    "TikTok Bold": SubtitleStyle(
+        font_family="Arial",
+        font_size=48,
+        highlight_font_size=72,
+        text_color="#FFFFFF",
+        highlight_color="#FF0000",
+        bold=True,
+        italic=False,
+        stroke_color="#000000",
+        stroke_width=3,
+        background_opacity=200,
+        animation="none"
+    ),
+    "Instagram Elegant": SubtitleStyle(
+        font_family="Helvetica",
+        font_size=40,
+        highlight_font_size=60,
+        text_color="#000000",
+        highlight_color="#FF69B4",
+        bold=False,
+        italic=True,
+        stroke_color="#FFFFFF",
+        stroke_width=1,
+        background_opacity=0,
+        animation="fade"
+    ),
+    "YouTube Clean": SubtitleStyle(
+        font_family="Roboto",
+        font_size=36,
+        highlight_font_size=54,
+        text_color="#FFFFFF",
+        highlight_color="#FFFF00",
+        bold=True,
+        italic=False,
+        stroke_color="#000000",
+        stroke_width=2,
+        background_opacity=128,
+        animation="none"
+    ),
+    "Viral Pop": SubtitleStyle(
+        font_family="Impact",
+        font_size=50,
+        highlight_font_size=80,
+        text_color="#FFD700",
+        highlight_color="#FF00FF",
+        bold=True,
+        italic=False,
+        stroke_color="#000000",
+        stroke_width=4,
+        background_opacity=200,
+        animation="pulse"
+    ),
+    "Minimalist": SubtitleStyle(
+        font_family="Arial",
+        font_size=32,
+        highlight_font_size=48,
+        text_color="#CCCCCC",
+        highlight_color="#FFFFFF",
+        bold=False,
+        italic=False,
+        stroke_color="#000000",
+        stroke_width=0,
+        background_opacity=0,
+        animation="none"
+    )
+}

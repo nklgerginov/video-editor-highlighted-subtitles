@@ -4,7 +4,8 @@ from typing import Optional
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QComboBox, QSpinBox, QDoubleSpinBox, QGroupBox, QFormLayout,
-    QMessageBox, QFileDialog, QColorDialog, QApplication, QSizePolicy
+    QMessageBox, QFileDialog, QColorDialog, QApplication, QSizePolicy,
+    QCheckBox, QSlider
 )
 from PyQt6.QtGui import QPixmap, QImage, QFontDatabase, QFont, QColor, QPalette
 from PyQt6.QtCore import Qt, QTimer, QSize, QUrl, pyqtSignal, QThread, QObject
@@ -86,6 +87,7 @@ class MainWindow(QMainWindow):
         self._setup_ui()
         self._setup_connections()
         self._load_fonts()
+        self._load_presets()
         self._setup_media_player()
 
     def _setup_dark_theme(self):
@@ -197,18 +199,17 @@ class MainWindow(QMainWindow):
         self.font_combo.setStyleSheet("QComboBox { background-color: #34495e; color: #ecf0f1; border: 1px solid #2c3e50; padding: 6px; border-radius: 4px; }")
         self.font_size_spin = QSpinBox()
         self.font_size_spin.setStyleSheet("QSpinBox { background-color: #34495e; color: #ecf0f1; border: 1px solid #2c3e50; padding: 6px; border-radius: 4px; }")
-        self.highlight_scale_spin = QDoubleSpinBox()
-        self.highlight_scale_spin.setStyleSheet("QDoubleSpinBox { background-color: #34495e; color: #ecf0f1; border: 1px solid #2c3e50; padding: 6px; border-radius: 4px; }")
+        self.highlight_font_size_spin = QSpinBox()
+        self.highlight_font_size_spin.setStyleSheet("QSpinBox { background-color: #34495e; color: #ecf0f1; border: 1px solid #2c3e50; padding: 6px; border-radius: 4px; }")
         
         self.font_size_spin.setRange(10, 200)
         self.font_size_spin.setValue(40)
-        self.highlight_scale_spin.setRange(1.0, 3.0)
-        self.highlight_scale_spin.setValue(1.5)
-        self.highlight_scale_spin.setSingleStep(0.1)
+        self.highlight_font_size_spin.setRange(10, 200)
+        self.highlight_font_size_spin.setValue(60)
         
         style_layout.addRow("Font:", self.font_combo)
         style_layout.addRow("Font Size:", self.font_size_spin)
-        style_layout.addRow("Highlight Scale:", self.highlight_scale_spin)
+        style_layout.addRow("Highlight Font Size:", self.highlight_font_size_spin)
         
         self.text_color_button = QPushButton("Choose Text Color")
         self.text_color_button.setStyleSheet("QPushButton { background-color: #34495e; color: #ecf0f1; padding: 6px; border-radius: 4px; border: 1px solid #2c3e50; }")
@@ -221,6 +222,42 @@ class MainWindow(QMainWindow):
         self.highlight_color = QColor(255, 255, 0)
         self._update_color_button(self.highlight_color_button, self.highlight_color)
         style_layout.addRow("Highlight Color:", self.highlight_color_button)
+        
+        self.bold_check = QCheckBox("Bold")
+        self.bold_check.setStyleSheet("QCheckBox { color: #ecf0f1; }")
+        self.bold_check.setChecked(True)
+        style_layout.addRow("Bold:", self.bold_check)
+        
+        self.italic_check = QCheckBox("Italic")
+        self.italic_check.setStyleSheet("QCheckBox { color: #ecf0f1; }")
+        self.italic_check.setChecked(False)
+        style_layout.addRow("Italic:", self.italic_check)
+        
+        self.stroke_color_button = QPushButton("Choose Stroke Color")
+        self.stroke_color_button.setStyleSheet("QPushButton { background-color: #34495e; color: #ecf0f1; padding: 6px; border-radius: 4px; border: 1px solid #2c3e50; }")
+        self.stroke_color = QColor(0, 0, 0)
+        self._update_color_button(self.stroke_color_button, self.stroke_color)
+        style_layout.addRow("Stroke Color:", self.stroke_color_button)
+        
+        self.stroke_width_spin = QSpinBox()
+        self.stroke_width_spin.setStyleSheet("QSpinBox { background-color: #34495e; color: #ecf0f1; border: 1px solid #2c3e50; padding: 6px; border-radius: 4px; }")
+        self.stroke_width_spin.setRange(0, 10)
+        self.stroke_width_spin.setValue(2)
+        style_layout.addRow("Stroke Width:", self.stroke_width_spin)
+        
+        self.bg_opacity_slider = QSlider(Qt.Orientation.Horizontal)
+        self.bg_opacity_slider.setStyleSheet("QSlider { background-color: #34495e; }")
+        self.bg_opacity_slider.setRange(0, 255)
+        self.bg_opacity_slider.setValue(128)
+        style_layout.addRow("Background Opacity:", self.bg_opacity_slider)
+        
+        self.preset_combo = QComboBox()
+        self.preset_combo.setStyleSheet("QComboBox { background-color: #34495e; color: #ecf0f1; border: 1px solid #2c3e50; padding: 6px; border-radius: 4px; }")
+        style_layout.addRow("Style Preset:", self.preset_combo)
+        
+        self.apply_preset_button = QPushButton("Apply Preset")
+        self.apply_preset_button.setStyleSheet("QPushButton { background-color: #9b59b6; color: white; padding: 6px; border-radius: 4px; }")
+        style_layout.addRow("", self.apply_preset_button)
         
         style_group.setLayout(style_layout)
         right_panel.addWidget(style_group)
@@ -312,9 +349,15 @@ class MainWindow(QMainWindow):
         self.process_button.clicked.connect(self._gen_subs)
         self.font_combo.currentTextChanged.connect(self._update_style)
         self.font_size_spin.valueChanged.connect(self._update_style)
-        self.highlight_scale_spin.valueChanged.connect(self._update_style)
+        self.highlight_font_size_spin.valueChanged.connect(self._update_style)
         self.text_color_button.clicked.connect(self._choose_text_color)
         self.highlight_color_button.clicked.connect(self._choose_highlight_color)
+        self.bold_check.stateChanged.connect(self._update_style)
+        self.italic_check.stateChanged.connect(self._update_style)
+        self.stroke_color_button.clicked.connect(self._choose_stroke_color)
+        self.stroke_width_spin.valueChanged.connect(self._update_style)
+        self.bg_opacity_slider.valueChanged.connect(self._update_style)
+        self.apply_preset_button.clicked.connect(self._apply_preset)
         self.save_position_button.clicked.connect(self._save_pos)
         self.x_spin.valueChanged.connect(self._update_pos)
         self.y_spin.valueChanged.connect(self._update_pos)
@@ -345,6 +388,11 @@ class MainWindow(QMainWindow):
                 self.font_combo.setCurrentText(f)
                 break
 
+    def _load_presets(self):
+        from models import STYLE_PRESETS
+        self.preset_combo.clear()
+        self.preset_combo.addItems(list(STYLE_PRESETS.keys()))
+
     def _update_color_button(self, button, color):
         button.setStyleSheet(f"QPushButton {{ background-color: {color.name()}; color: {'black' if color.lightness() > 128 else 'white'}; padding: 6px; border-radius: 4px; border: 1px solid #2c3e50; }}")
 
@@ -354,9 +402,14 @@ class MainWindow(QMainWindow):
         self.project.style = SubtitleStyle(
             font_family=self.font_combo.currentText(),
             font_size=self.font_size_spin.value(),
-            highlight_scale=self.highlight_scale_spin.value(),
+            highlight_font_size=self.highlight_font_size_spin.value(),
             text_color=self.text_color.name(),
-            highlight_color=self.highlight_color.name()
+            highlight_color=self.highlight_color.name(),
+            bold=self.bold_check.isChecked(),
+            italic=self.italic_check.isChecked(),
+            stroke_color=self.stroke_color.name(),
+            stroke_width=self.stroke_width_spin.value(),
+            background_opacity=self.bg_opacity_slider.value()
         )
         if self.preview_widget.project:
             self.preview_widget.set_project(self.project)
@@ -375,12 +428,21 @@ class MainWindow(QMainWindow):
             self._update_color_button(self.highlight_color_button, color)
             self._update_style()
 
+    def _choose_stroke_color(self):
+        color = QColorDialog.getColor(self.stroke_color, self, "Choose Stroke Color")
+        if color.isValid():
+            self.stroke_color = color
+            self._update_color_button(self.stroke_color_button, color)
+            self._update_style()
+
     def _update_pos_spins(self, pos):
         self.x_spin.setValue(pos.x)
         self.y_spin.setValue(pos.y)
         self.width_spin.setValue(pos.width)
         self.height_spin.setValue(pos.height)
         self.position_label.setText(f"Position: {pos.x}px, {pos.y}px")
+        if self.project:
+            self.project.position = pos
 
     def _update_pos(self):
         if not self.project:
@@ -518,6 +580,26 @@ class MainWindow(QMainWindow):
         super().closeEvent(event)
 
 
+
+    def _apply_preset(self):
+        from models import STYLE_PRESETS
+        preset_name = self.preset_combo.currentText()
+        if preset_name in STYLE_PRESETS:
+            preset = STYLE_PRESETS[preset_name]
+            self.font_combo.setCurrentText(preset.font_family)
+            self.font_size_spin.setValue(preset.font_size)
+            self.highlight_font_size_spin.setValue(preset.highlight_font_size)
+            self.text_color = QColor(preset.text_color)
+            self._update_color_button(self.text_color_button, self.text_color)
+            self.highlight_color = QColor(preset.highlight_color)
+            self._update_color_button(self.highlight_color_button, self.highlight_color)
+            self.bold_check.setChecked(preset.bold)
+            self.italic_check.setChecked(preset.italic)
+            self.stroke_color = QColor(preset.stroke_color)
+            self._update_color_button(self.stroke_color_button, self.stroke_color)
+            self.stroke_width_spin.setValue(preset.stroke_width)
+            self.bg_opacity_slider.setValue(preset.background_opacity)
+            self._update_style()
 def main():
     app = QApplication(sys.argv)
     w = MainWindow()
@@ -527,3 +609,27 @@ def main():
 
 if __name__ == "__main__":
     main()
+    def _load_presets(self):
+        from models import STYLE_PRESETS
+        self.preset_combo.clear()
+        self.preset_combo.addItems(list(STYLE_PRESETS.keys()))
+
+    def _apply_preset(self):
+        from models import STYLE_PRESETS
+        preset_name = self.preset_combo.currentText()
+        if preset_name in STYLE_PRESETS:
+            preset = STYLE_PRESETS[preset_name]
+            self.font_combo.setCurrentText(preset.font_family)
+            self.font_size_spin.setValue(preset.font_size)
+            self.highlight_font_size_spin.setValue(preset.highlight_font_size)
+            self.text_color = QColor(preset.text_color)
+            self._update_color_button(self.text_color_button, self.text_color)
+            self.highlight_color = QColor(preset.highlight_color)
+            self._update_color_button(self.highlight_color_button, self.highlight_color)
+            self.bold_check.setChecked(preset.bold)
+            self.italic_check.setChecked(preset.italic)
+            self.stroke_color = QColor(preset.stroke_color)
+            self._update_color_button(self.stroke_color_button, self.stroke_color)
+            self.stroke_width_spin.setValue(preset.stroke_width)
+            self.bg_opacity_slider.setValue(preset.background_opacity)
+            self._update_style()

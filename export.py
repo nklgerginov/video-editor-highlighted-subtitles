@@ -32,11 +32,11 @@ class VideoExporter:
         font_path: Optional[str] = None
     ) -> TextClip:
         clip_kwargs = {
-            "txt": text,
+            "text": text,
             "size": None,
             "color": color,
-            "bg_color": bg_color,
-            "fontsize": font_size,
+            "bg_color": bg_color if bg_color != "transparent" else None,
+            "font_size": font_size,
             "stroke_color": None,
             "stroke_width": 0
         }
@@ -51,12 +51,22 @@ class VideoExporter:
 
         try:
             return TextClip(**clip_kwargs)
-        except TypeError as e:
-            if "multiple values for argument 'font'" in str(e):
+        except (TypeError, ValueError, OSError) as e:
+            error_msg = str(e)
+            if "multiple values for argument 'font'" in error_msg:
                 clip_kwargs.pop("font", None)
                 clip_kwargs["font"] = font_family
-                return TextClip(**clip_kwargs)
-            raise
+                try:
+                    return TextClip(**clip_kwargs)
+                except (ValueError, OSError):
+                    pass
+            
+            if "Invalid font" in error_msg or "cannot open resource" in error_msg:
+                pass
+            
+            clip_kwargs.pop("font", None)
+            clip_kwargs.pop("size", None)
+            return TextClip(**clip_kwargs)
 
     def _create_highlighted_subtitle_clips(self, video: VideoFileClip) -> List:
         subtitle_clips = []
@@ -72,8 +82,7 @@ class VideoExporter:
             size=(position.width, position.height),
             color=(0, 0, 0, 128),
             duration=bg_duration
-        )
-        bg_clip = bg_clip.set_position((position.x, position.y), relative=False).set_start(0)
+        ).with_position((position.x, position.y)).with_start(0)
         subtitle_clips.append(bg_clip)
 
         x_pos = position.x + 20
@@ -93,18 +102,15 @@ class VideoExporter:
                 highlight_clip = self._create_text_clip(
                     word.text,
                     style.font_family,
-                    int(style.font_size * style.highlight_scale),
+                    style.highlight_font_size,
                     style.highlight_color,
                     "transparent"
                 )
 
-                normal_clip = normal_clip.set_position((line_x_pos, y_pos), relative=False)
-                highlight_clip = highlight_clip.set_position((line_x_pos, y_pos), relative=False)
-
-                normal_clip = normal_clip.set_start(word.start_time).set_duration(
+                normal_clip = normal_clip.with_position((line_x_pos, y_pos)).with_start(word.start_time).with_duration(
                     word.end_time - word.start_time
                 )
-                highlight_clip = highlight_clip.set_start(word.start_time).set_duration(
+                highlight_clip = highlight_clip.with_position((line_x_pos, y_pos)).with_start(word.start_time).with_duration(
                     word.end_time - word.start_time
                 )
 
