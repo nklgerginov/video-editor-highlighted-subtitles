@@ -58,6 +58,7 @@ class VideoFrameGrabber(QObject):
         su
 
 
+
 per().__init__()
         self.video_widget = video_widget
         self.timer = QTimer(self)
@@ -103,8 +104,7 @@ class MainWindow(QMainWindow):
         dark_palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.black)
-        dark_pale
-ttee.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
+        dark_palettettee.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
         dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.ButtonText, QColor(127, 127, 127))
         QApplication.setPalette(dark_palette)
         QApplication.setStyle("Fusion")
@@ -141,8 +141,7 @@ ttee.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 
         self.play_button.setStyleSheet("QPushButton { background-color: #2ecc71; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #37d477; }")
         self.pause_button = QPushButton("Pause")
         self.pause_button.setStyleSheet("QPushButton { background-color: #f39c12; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #f5ab35; }")
-        self.stop_button = QPu
-shButton("Stop")
+        self.stop_button = QPushButton("Stop")
         self.stop_button.setStyleSheet("QPushButton { background-color: #e74c3c; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #ec7063; }")
 
         controls_layout.addWidget(self.upload_button)
@@ -182,7 +181,8 @@ shButton("Stop")
         self.process_button = QPushButton("Generate Subtitles")
         self.process_button.setStyleSheet("QPushButton { background-color: #9b59b6; color: white; padding: 10px; border-radius: 4px; font-size: 14px; } QPushButton:hover { background-color: #a569bd; } QPushButton:disabled { background-color: #7f8c8d; }")
           self.f.process_button.setEnabled(False)
-        right_panel.addWidget(self.process_button)
+      
+  right_panel.addWidget(self.process_button)
 
         self.processing_label = QLabel("Processing...")
         self.processing_label.setStyleSheet("color: #f39c12;")
@@ -216,7 +216,8 @@ shButton("Stop")
         self.text_color_button.setStyleSheet("QPushButton { background-color: #34495e; color: #ecf0f1; padding: 6px; border-radius: 4px; border: 1px solid #2c3e50; }")
         self.text_color = QColor(255, 255, 255)
         self._update_color_button(self.text_color_button, self.text_color)
-        style_layout.addRow("Text Color:", self.text_color_button)
+        style_layout.addRow("Text Color:", self.text_color_butt
+on)
 
  
        self.highlight_color_button = QPushButton("Choose Highlight Color")
@@ -262,6 +263,7 @@ shButton("Stop")
 
         self.y_spin.setRange(0, 2000)
         self.y_spin.setValue(50)
+
 
 
  
@@ -311,7 +313,8 @@ shButton("Stop")
         self.model_combo.addItem("vosk-model-small-en-us-0.15")
 
     def _setup_connections(self):
-  
+ 
+ 
    
    self.upload_button.clicked.connect(self._load_video)
         self.play_button.clicked.connect(self._play)
@@ -354,8 +357,7 @@ for f in ["Arial", "Helvetica", "Roboto", "Segoe UI"]:
                 self.font_combo.setCurrentText(f)
                 break
 
-    def _update_color_button(self, button, col
-or):
+    def _update_color_button(self, button, color):
 
      
    button.setStyleSheet(f"QPushButton {{ background-color: {color.name()}; color: {'black' if color.lightness() > 128 else 'white'}; padding: 6px; border-radius: 4px; border: 1px solid #2c3e50; }}")
@@ -402,7 +404,8 @@ or):
 .project.position = pos
         if self.preview_widget.scene.subtitle_box:
             self.preview_widget.scene.subtitle_box.setRect(0, 0, pos.width, pos.height)
-            self.preview_widget.scene.subtitle_box.setPos(pos.x, pos.y)
+            self.previ
+ew_widget.scene.subtitle_box.setPos(pos.x, pos.y)
             self.preview_widget.scene.subtitle_box.update_resize_handles()
 
     def _save_pos(self):
@@ -456,7 +459,8 @@ or):
             self.process_button.setEnabled(True)
             self.export_button.setEnabled(False)
             self._update_time(0)
-        
+       
+ 
     QM
 essageBo
 x.information(self, "Video Loaded", f"Video loaded: {os.path.basename(fp)}")
@@ -509,7 +513,8 @@ Success", "Subtitles generated successfully!")
     def _on_proc_err(self, error):
         self.processing_label.setVisible(False)
         self.process_button.setEnabled(True)
-        QMessageBox.critical(se
+        QMessageBox.critical(
+se
 lf, "Er
 ror", f"F
 ailed to generate subtitles:\n{error}")
