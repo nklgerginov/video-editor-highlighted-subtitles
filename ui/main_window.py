@@ -64,6 +64,7 @@ class VideoFrameGrabber(QObject):
 
 
 
+
         super().__init__()
         self.video_widget = video_widget
         self.timer = QTimer(self)
@@ -113,6 +114,7 @@ class MainWindow(QMainWindow):
 
 
 
+
         dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
 
         dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.ButtonText, QColor(127, 127, 127))
@@ -150,7 +152,8 @@ class MainWindow(QMainWindow):
         self.play_button = QPushButton("Play")
         self.play_button.setStyleSheet("QPushButton { background-color: #2ecc71; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #37d477; }")
         self.pause_button = QPushButton("Pause")
-        self.pause_button.setStyleSheet("QPushButton { background-color: #f39c12; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #f5ab35; 
+        self.pause_button.setStyleSheet("QPushButton { background-color: #f39c12; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #f5ab35;
+ 
 
 }"
 )
@@ -196,6 +199,7 @@ class MainWindow(QMainWindow):
         # Process Button
         self.process_button = QPushButton("Generate Subtitles")
         self.process_button.setStyleSheet("QPushButton { background-color: #9b59b6; color: white; padding: 10px; border-radius: 4px; font-size: 14px; } QPushButton:hover { background-color: #a569bd; } QPushButton:disabled { background-color: #
+
 7f
 8
 c8d
@@ -237,7 +241,8 @@ c8d
         self.text_color_button = QPushButton("Choose Text Color")
         self.text_color_button.setStyleSheet("QPushButton { background-color: #34495e; color: #ecf0f1; padding: 6px; border-radius: 4px; border: 1px solid #2c3e50; }")
         self.text_color = QColor(255, 255, 255)
-        self._update_cself._update_co
+        self._update_cself._update_
+co
 l
 or_
 butt
@@ -283,7 +288,8 @@ elf.text_color_button, self.text_color)
         for spin in [self.x_spin, self.y_spin, self.width_spin, self.height_spin]:
             spin.setStyleSheet("QSpinBox { background-color: #34495e; color: #ecf0f1; border: 1px solid #2c3e50; padding: 4px; border-radius: 4px; }")
         
-        self.x
+        se
+lf.x
 
 _spin
 .setR
@@ -336,7 +342,8 @@ elf.x_spin.setValue(50)
         models_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "models")
         if os.path.exists(models_dir):
             for item in os.listdir(models_dir):
-                if os.path.isdir(os.path.join(models_dir, item)):
+                if os.path.isdir(os.path.join(models_dir, it
+em)):
 
 
       
@@ -381,9 +388,7 @@ adaddItem(os.path.join("models", item))
         families = QFontDatabase.families()
         self.font_combo.clear()
        
- self.f
-ont_
-com
+        self.font_combo
 bo.addIt
 ems(families)
       
@@ -434,7 +439,8 @@ for f in ["Arial", "Helvetica", "Roboto", "Segoe UI"]:
         if not self.project:
             return
         pos = SubtitlePosition(self.x_spin.value(), self.y_sp
-in.value
+in.
+value
 ()
 , self.width_spin.v
 alue(), s
@@ -493,7 +499,8 @@ elf.height_spin.value
         fp, _ = QFileDialog.getOpenFileName(self, "Open Video", "", "Video Files (*.mp4 *.avi *.mov *.mkv)")
         if fp:
             self.cu
-rrent_vid
+r
+rent_vid
 
 eo_path = fp
          
@@ -548,6 +555,7 @@ oject.video_path = fp
         self._update_style()
         self.preview_widget.set_project(self.project)
         s
+
 elf._upda
 t
 e_pos_spins(self.projec
