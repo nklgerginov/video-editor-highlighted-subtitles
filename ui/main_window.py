@@ -471,7 +471,7 @@ media_player.setSource(QUrl.fromLocalFile(fp))
                         break
         
         if not os.path.exists(model_path):
-            msg = f"""Vosk model not found at: {model_path}
+            msg = f"""Vosk model not found at: {{model_path}}
 
 Download models from: https://alphacephei.com/vosk/models
 and place them in the 'models' folder"""
