@@ -58,7 +58,7 @@ class VideoFrameGrabber(QObject):
 
     def __init__(self, video_widget):
         
-        super().__init__()
+super().__init__()
         self.video_widget = video_widget
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.grab_frame)
@@ -90,8 +90,7 @@ class MainWindow(QMainWindow):
         self._setup_media_player()
 
     def _setup_dark_theme(self):
-        dark_palette = QPalette()
-        dark_palette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
+        dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
         dark_palette.setColor(QPalette.ColorRole.WindowText, Qt.GlobalColor.white)
         dark_palette.setColor(QPalette.ColorRole.Base, QColor(25, 25, 25))
         dark_palette.setColor(QPalette.ColorRole.AlternateBase, QColor(53, 53, 53))
@@ -104,7 +103,8 @@ class MainWindow(QMainWindow):
         dark_palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.black)
-        dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
+        dark_pal
+ette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
         dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.ButtonText, QColor(127, 127, 127))
         QApplication.setPalette(dark_palette)
         QApplication.setStyle("Fusion")
@@ -346,7 +346,8 @@ h.join("models", item))
         families = QFontDatabase.families()
         self.font_combo.clear()
         self.font_combo.addItems(families)
-        for f in ["Arial", "Helvetica", "Roboto", "Segoe UI"]:
+        for f in ["Ar
+ial", "Helvetica", "Roboto", "Segoe UI"]:
             if f in families:
                 self.font_combo.setCurrentText(f)
                 break
@@ -494,12 +495,14 @@ h.join("models", item))
         self._update_style()
         self.preview_widget.set_project(self.project)
         self._update_pos_spins(self.project.position)
-        QMessageBox.information(self, "Success", "Subtitles generated successfully!")
+        QMessageBox.information(self, "
+Success", "Subtitles generated successfully!")
 
     def _on_proc_err(self, error):
         self.processing_label.setVisible(False)
         self.process_button.setEnabled(True)
-        QMessageBox.critical(self, "Error", f"Failed to generate subtitles: {error}")
+        QMessageBox.critical(self, "Error", f"Failed to generate subtitles:
+{error}")
 
     def _export(self):
         default_name = os.path.splitext(os.path.basename(self.current_video_path))[0] + "_subtitled.mp4"
@@ -518,12 +521,14 @@ h.join("models", item))
     def _on_exp_done(self, path):
         self.export_label.setVisible(False)
         self.export_button.setEnabled(True)
-        QMessageBox.information(self, "Success", f"Video exported to: {path}")
+        QMessageBox.information(self, "Success", f"Video exported to:
+{path}")
 
     def _on_exp_err(self, error):
         self.export_label.setVisible(False)
         self.export_button.setEnabled(True)
-        QMessageBox.critical(self, "Error", f"Export failed: {error}")
+        QMessageBox.critical(self, "Error", f"Export failed:
+{error}")
 
     def closeEvent(self, event):
         self._stop()
