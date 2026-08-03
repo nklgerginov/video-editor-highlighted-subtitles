@@ -105,6 +105,7 @@ class MainWindow(QMainWindow):
         dark_palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.black)
         dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
+
         dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.ButtonText, QColor(127, 127, 127))
         QApplication.setPalette(dark_palette)
         QApplication.setStyle("Fusion")
@@ -142,6 +143,7 @@ class MainWindow(QMainWindow):
         self.pause_button = QPushButton("Pause")
         self.pause_button.setStyleSheet("QPushButton { background-color: #f39c12; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #f5ab35; }")
         self.stop_button = QPushButton("Stop")
+
         self.stop_button.setStyleSheet("QPushButton { background-color: #e74c3c; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #ec7063; }")
         
         controls_layout.addWidget(self.upload_button)
@@ -181,6 +183,7 @@ class MainWindow(QMainWindow):
         self.process_button = QPushButton("Generate Subtitles")
         self.process_button.setStyleSheet("QPushButton { background-color: #9b59b6; color: white; padding: 10px; border-radius: 4px; font-size: 14px; } QPushButton:hover { background-color: #a569bd; } QPushButton:disabled { background-color: #7f8c8d; }")
         self.process_button.setEnabled(False)
+
         right_panel.addWidget(self.process_button)
 
         self.processing_label = QLabel("Processing...")
@@ -257,7 +260,7 @@ text_color)
         
         self.x_spin.setRange(0, 2000)
         self.x_spin.se
-tValue(50)
+setValue(50)
         position_form.addRow("X (px):", self.x_spin)
         
         self.y_spin.setRange(0, 2000)
@@ -345,7 +348,7 @@ h.join("models", item))
         self.font_combo.clear()
         self.font_combo.addItems(families)
         for f in ["Ar
-ial", "Helvetica", "Roboto", "Segoe UI"]:
+Arial", "Helvetica", "Roboto", "Segoe UI"]:
             if f in families:
                 self.font_combo.setCurrentText(f)
                 break
@@ -392,7 +395,7 @@ ial", "Helvetica", "Roboto", "Segoe UI"]:
             return
         pos = SubtitlePosition(self.x_spin.value(), self.y_spin.value(), self.width_spin.value(), self.height_spin.value())
         self
-.project.position = pos
+self.project.position = pos
         if self.preview_widget.scene.subtitle_box:
             self.preview_widget.scene.subtitle_box.setRect(0, 0, pos.width, pos.height)
             self.preview_widget.scene.subtitle_box.setPos(pos.x, pos.y)
@@ -446,6 +449,7 @@ ial", "Helvetica", "Roboto", "Segoe UI"]:
             self.current_video_path = fp
             self.project.video_path = fp
             self.media_player.setSource(QUrl.fromLocalFile(fp))
+
             self.process_button.setEnabled(True)
             self.export_button.setEnabled(False)
             self._update_time(0)
@@ -471,8 +475,8 @@ ial", "Helvetica", "Roboto", "Segoe UI"]:
                 self, "Model Not Found", 
                 f"Vosk model not found at: {model_path}
 
-"
-                "Download models from: https://alphacephei.com/vosk/models
+"Download models from: https://alphacephei.com/vosk/models
+                and place them in the 'models' folder"
 "
                 "and place them in the 'models' folder"
             )
