@@ -61,6 +61,7 @@ class VideoExporter:
     def _create_highlighted_subtitle_clips(self, video: VideoFileClip) -> List:
         subtitle_clips = []
         style = self.project.style
+
         position = self.project.position
 
         bg_clip = ColorClip(
@@ -113,7 +114,7 @@ class VideoExporter:
             "low": {"bitrate": "500k"},
             "medium": {"bitrate": "2000k"},
             
-            "high": {"bitrate": "5000k"},
+"high": {"bitrate": "5000k"},
             "ultra": {"bitrate": "10000k"}
         }
         params = quality_params.get(quality, quality_params["high"])
