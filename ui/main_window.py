@@ -104,8 +104,8 @@ class MainWindow(QMainWindow):
         dark_palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.black)
-        dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
-
+        dark_pal
+ette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
         dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.ButtonText, QColor(127, 127, 127))
         QApplication.setPalette(dark_palette)
         QApplication.setStyle("Fusion")
@@ -142,8 +142,8 @@ class MainWindow(QMainWindow):
         self.play_button.setStyleSheet("QPushButton { background-color: #2ecc71; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #37d477; }")
         self.pause_button = QPushButton("Pause")
         self.pause_button.setStyleSheet("QPushButton { background-color: #f39c12; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #f5ab35; }")
-        self.s
-top_button = QPushButton("Stop")
+        self.stop_button = QPushButton("Stop")
+
         self.stop_button.setStyleSheet("QPushButton { background-color: #e74c3c; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #ec7063; }")
         
         controls_layout.addWidget(self.upload_button)
@@ -182,8 +182,8 @@ top_button = QPushButton("Stop")
         # Process Button
         self.process_button = QPushButton("Generate Subtitles")
         self.process_button.setStyleSheet("QPushButton { background-color: #9b59b6; color: white; padding: 10px; border-radius: 4px; font-size: 14px; } QPushButton:hover { background-color: #a569bd; } QPushButton:disabled { background-color: #7f8c8d; }")
-        sel
-f.process_button.setEnabled(False)
+        self.process_button.setEnabled(False)
+
         right_panel.addWidget(self.process_button)
 
         self.processing_label = QLabel("Processing...")
@@ -448,7 +448,7 @@ ial", "Helvetica", "Roboto", "Segoe UI"]:
         if fp:
             self.current_video_path = fp
             self.project.video_path = fp
-            media_player.setSource(QUrl.fromLocalFile(fp))
+            self.media_player.setSource(QUrl.fromLocalFile(fp))
 
             self.process_button.setEnabled(True)
             self.export_button.setEnabled(False)
