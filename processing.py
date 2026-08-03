@@ -1,6 +1,7 @@
 """
 Video processing and subtitle generation module.
 Handles audio extraction, conversion, and word-level subtitle generation using Vosk.
+Supports MoviePy v2.0+ imports.
 """
 
 import os
@@ -11,8 +12,6 @@ from PyQt6.QtCore import QThread, pyqtSignal
 
 
 class VideoProcessor(QThread):
-    """Thread for processing video and generating subtitles."""
-    
     progress = pyqtSignal(int)
     message = pyqtSignal(str)
     processing_complete = pyqtSignal(list)
@@ -25,7 +24,6 @@ class VideoProcessor(QThread):
         self._is_running = True
     
     def run(self):
-        """Main processing thread entry point."""
         try:
             self.message.emit("Extracting audio from video...")
             self.progress.emit(10)
@@ -62,7 +60,8 @@ class VideoProcessor(QThread):
     
     def _extract_audio(self):
         try:
-            from moviepy.editor import VideoFileClip
+            # FIX: Use direct import for MoviePy v2.0+
+            from moviepy import VideoFileClip
             video = VideoFileClip(self.video_path)
             audio_path = os.path.join(
                 os.path.dirname(self.video_path),
@@ -86,7 +85,8 @@ class VideoProcessor(QThread):
     
     def _convert_to_wav(self, audio_path):
         try:
-            from moviepy.editor import AudioFileClip
+            # FIX: Use direct import for MoviePy v2.0+
+            from moviepy import AudioFileClip
             audio = AudioFileClip(audio_path)
             wav_path = os.path.join(
                 os.path.dirname(audio_path),
