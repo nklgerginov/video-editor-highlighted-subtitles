@@ -27,7 +27,6 @@ class VideoExporter(QThread):
             self.message.emit("Loading video...")
             self.progress.emit(10)
             
-            # FIX: Use direct imports for MoviePy v2.0+
             from moviepy import VideoFileClip
             video = VideoFileClip(self.video_path)
             
@@ -71,14 +70,13 @@ class VideoExporter(QThread):
             import traceback
             error_msg = str(e)
             traceback_str = traceback.format_exc()
-            self.error_occurred.emit(error_msg + "
-" + traceback_str)
+            combined = error_msg + chr(10) + traceback_str
+            self.error_occurred.emit(combined)
     
     def stop(self):
         self._is_running = False
     
     def _create_subtitle_clips(self, video):
-        # FIX: Use direct import for MoviePy v2.0+
         from moviepy import TextClip
         
         subtitle_clips = []
