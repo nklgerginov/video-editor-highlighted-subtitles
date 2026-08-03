@@ -115,7 +115,6 @@ class MainWindow(QMainWindow):
         main_layout.setContentsMargins(20, 20, 20, 20)
         main_layout.setSpacing(20)
 
-        # Left panel - Video Preview
         left_panel = QVBoxLayout()
         left_panel.setSpacing(15)
 
@@ -129,7 +128,6 @@ class MainWindow(QMainWindow):
         preview_group.setLayout(preview_layout)
         left_panel.addWidget(preview_group, stretch=1)
 
-        # Video Controls
         controls_group = QGroupBox("Video Controls")
         controls_layout = QHBoxLayout()
         controls_layout.setSpacing(10)
@@ -155,11 +153,9 @@ class MainWindow(QMainWindow):
         controls_group.setLayout(controls_layout)
         left_panel.addWidget(controls_group)
 
-        # Right panel - Settings
         right_panel = QVBoxLayout()
         right_panel.setSpacing(15)
 
-        # Vosk Model Section
         vosk_group = QGroupBox("Vosk Model")
         vosk_layout = QVBoxLayout()
         vosk_layout.setSpacing(10)
@@ -176,7 +172,6 @@ class MainWindow(QMainWindow):
         vosk_group.setLayout(vosk_layout)
         right_panel.addWidget(vosk_group)
 
-        # Process Button
         self.process_button = QPushButton("Generate Subtitles")
         self.process_button.setStyleSheet("QPushButton { background-color: #9b59b6; color: white; padding: 10px; border-radius: 4px; font-size: 14px; } QPushButton:hover { background-color: #a569bd; } QPushButton:disabled { background-color: #7f8c8d; }")
         self.process_button.setEnabled(False)
@@ -187,7 +182,6 @@ class MainWindow(QMainWindow):
         self.processing_label.setVisible(False)
         right_panel.addWidget(self.processing_label)
 
-        # Subtitle Style Section
         style_group = QGroupBox("Subtitle Style")
         style_layout = QFormLayout()
         style_layout.setSpacing(10)
@@ -225,7 +219,6 @@ class MainWindow(QMainWindow):
         style_group.setLayout(style_layout)
         right_panel.addWidget(style_group)
 
-        # Subtitle Position Section
         position_group = QGroupBox("Subtitle Position")
         position_layout = QVBoxLayout()
         position_layout.setSpacing(10)
@@ -273,7 +266,6 @@ class MainWindow(QMainWindow):
         position_group.setLayout(position_layout)
         right_panel.addWidget(position_group)
 
-        # Export Section
         export_group = QGroupBox("Export")
         export_layout = QVBoxLayout()
         export_layout.setSpacing(10)
@@ -461,15 +453,13 @@ class MainWindow(QMainWindow):
                         break
         
         if not os.path.exists(model_path):
-            QMessageBox.warning(
-                self, "Model Not Found", 
-                f"Vosk model not found at: {model_path}
+            msg = (f"Vosk model not found at: {model_path}
 
 "
-                "Download models from: https://alphacephei.com/vosk/models
+                   "Download models from: https://alphacephei.com/vosk/models
 "
-                "and place them in the 'models' folder"
-            )
+                   "and place them in the 'models' folder")
+            QMessageBox.warning(self, "Model Not Found", msg)
             return
         
         self.processing_label.setVisible(True)
