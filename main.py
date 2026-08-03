@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+<<<<<<< HEAD
 import sys
 import os
 <<<<<<< HEAD
@@ -10,6 +11,9 @@ if project_dir not in sys.path:
 from ui.main_window import main
 
 =======
+=======
+import sys, os
+>>>>>>> d68708e919fc1d12be8141077fdbfdeb7ddd243c
 project_dir = os.path.dirname(os.path.abspath(__file__))
 if project_dir not in sys.path:
     sys.path.insert(0, project_dir)
