@@ -1,6 +1,6 @@
 """
 Main application window for the video editor.
-Canva-style subtitle positioning feature added.
+Canva-style drag-and-drop subtitle positioning.
 """
 
 import sys
@@ -60,13 +60,18 @@ class VideoEditorApp(QMainWindow):
         left_panel = QVBoxLayout()
         left_panel.setSpacing(10)
         
-        video_group = QGroupBox("Video Preview")
+        video_group = QGroupBox("Video Preview & Subtitle Positioning")
         video_layout = QVBoxLayout()
         
         self.video_widget = QVideoWidget()
         self.video_widget.setMinimumSize(640, 360)
         self.video_widget.setStyleSheet("background-color: #000;")
         video_layout.addWidget(self.video_widget)
+        
+        from ui.preview import SubtitlePreviewWidget
+        self.subtitle_preview = SubtitlePreviewWidget([], self.subtitle_style)
+        self.subtitle_preview.setMinimumHeight(100)
+        video_layout.addWidget(self.subtitle_preview)
         
         controls_layout = QHBoxLayout()
         
@@ -92,10 +97,6 @@ class VideoEditorApp(QMainWindow):
         video_layout.addLayout(controls_layout)
         video_group.setLayout(video_layout)
         left_panel.addWidget(video_group)
-        
-        from ui.preview import SubtitlePreviewWidget
-        self.subtitle_preview = SubtitlePreviewWidget([], self.subtitle_style)
-        left_panel.addWidget(self.subtitle_preview)
         
         self.progress_bar = QProgressBar()
         self.progress_bar.setTextVisible(True)
@@ -138,7 +139,7 @@ class VideoEditorApp(QMainWindow):
         process_group.setLayout(process_layout)
         right_panel.addWidget(process_group)
         
-        style_group = QGroupBox("Subtitle Style & Position (Canva-Style)")
+        style_group = QGroupBox("Subtitle Style")
         style_form = QFormLayout()
         
         self.cmb_font = QComboBox()
@@ -160,21 +161,6 @@ class VideoEditorApp(QMainWindow):
         self.spin_highlight_scale.valueChanged.connect(self.update_style)
         style_form.addRow("Highlight Scale:", self.spin_highlight_scale)
         
-        self.slider_position_x = QSlider(Qt.Orientation.Horizontal)
-        self.slider_position_x.setRange(0, 100)
-        self.slider_position_x.setValue(int(self.subtitle_style['position_x'] * 100))
-        self.slider_position_x.valueChanged.connect(self.update_position)
-        style_form.addRow("Horizontal Position (%):", self.slider_position_x)
-        
-        self.slider_position_y = QSlider(Qt.Orientation.Horizontal)
-        self.slider_position_y.setRange(0, 100)
-        self.slider_position_y.setValue(int(self.subtitle_style['position_y'] * 100))
-        self.slider_position_y.valueChanged.connect(self.update_position)
-        style_form.addRow("Vertical Position (%):", self.slider_position_y)
-        
-        self.lbl_position = QLabel(f"Position: {int(self.subtitle_style['position_x']*100)}%, {int(self.subtitle_style['position_y']*100)}%")
-        style_form.addRow("", self.lbl_position)
-        
         self.btn_color = QPushButton("Choose Text Color")
         self.btn_color.clicked.connect(self.choose_text_color)
         style_form.addRow("Text Color:", self.btn_color)
@@ -185,6 +171,24 @@ class VideoEditorApp(QMainWindow):
         
         style_group.setLayout(style_form)
         right_panel.addWidget(style_group)
+        
+        position_group = QGroupBox("Subtitle Position (Drag & Drop)")
+        position_layout = QVBoxLayout()
+        
+        position_info = QLabel("Drag the subtitle box in the preview to position it")
+        position_info.setWordWrap(True)
+        position_info.setStyleSheet("color: #aaa; font-size: 12px;")
+        position_layout.addWidget(position_info)
+        
+        self.btn_save_position = QPushButton("Save Current Position")
+        self.btn_save_position.clicked.connect(self.save_position)
+        position_layout.addWidget(self.btn_save_position)
+        
+        self.lbl_position = QLabel(f"Position: {int(self.subtitle_style['position_x']*100)}%, {int(self.subtitle_style['position_y']*100)}%")
+        position_layout.addWidget(self.lbl_position)
+        
+        position_group.setLayout(position_layout)
+        right_panel.addWidget(position_group)
         
         export_group = QGroupBox("Export")
         export_layout = QVBoxLayout()
@@ -223,34 +227,31 @@ class VideoEditorApp(QMainWindow):
         QComboBox { background-color: #333; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 5px; }
         QComboBox::drop-down { border: none; }
         QSpinBox, QDoubleSpinBox { background-color: #333; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 5px; }
-        QSlider::groove:horizontal { height: 8px; background: #333; border-radius: 4px; }
-        QSlider::handle:horizontal { width: 16px; height: 16px; margin: -4px 0; border-radius: 8px; background: #0078d7; }
-        QSlider::sub-page:horizontal { background: #0078d7; border-radius: 4px; }
         """
     
     def update_style(self):
         self.subtitle_style['font'] = self.cmb_font.currentText()
         self.subtitle_style['fontsize'] = self.spin_fontsize.value()
         self.subtitle_style['highlight_scale'] = self.spin_highlight_scale.value()
-        if hasattr(self.subtitle_preview, 'set_style'):
-            self.subtitle_preview.set_style(self.subtitle_style)
+        self.subtitle_preview.set_style(self.subtitle_style)
     
-    def update_position(self):
-        self.subtitle_style['position_x'] = self.slider_position_x.value() / 100.0
-        self.subtitle_style['position_y'] = self.slider_position_y.value() / 100.0
-        self.lbl_position.setText(f"Position: {self.slider_position_x.value()}%, {self.slider_position_y.value()}%")
-        if hasattr(self.subtitle_preview, 'set_style'):
-            self.subtitle_preview.set_style(self.subtitle_style)
+    def save_position(self):
+        pos = self.subtitle_preview.save_position()
+        self.subtitle_style.update(pos)
+        self.lbl_position.setText(f"Position: {int(pos['position_x']*100)}%, {int(pos['position_y']*100)}%")
+        self.update_style()
     
     def choose_text_color(self):
         color = QColorDialog.getColor(QColor(self.subtitle_style.get('color', 'white')), self, "Choose Text Color")
         if color.isValid():
             self.subtitle_style['color'] = color.name()
+            self.subtitle_preview.set_style(self.subtitle_style)
     
     def choose_highlight_color(self):
         color = QColorDialog.getColor(QColor(self.subtitle_style.get('highlight_color', 'yellow')), self, "Choose Highlight Color")
         if color.isValid():
             self.subtitle_style['highlight_color'] = color.name()
+            self.subtitle_preview.set_style(self.subtitle_style)
     
     def open_video(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Open Video File", "", "Video Files (*.mp4 *.avi *.mov *.mkv *.flv);;All Files (*)")
@@ -314,7 +315,7 @@ class VideoEditorApp(QMainWindow):
     def on_subtitles_generated(self, subtitle_lines):
         self.subtitle_lines = subtitle_lines
         self.subtitle_preview.set_subtitle_lines(subtitle_lines)
-        self.lbl_status.setText(f"Generated {len(subtitle_lines)} subtitle lines")
+        self.lbl_status.setText(f"Generated {len(subtitle_lines)} subtitle lines - Drag to position!")
         self.btn_export.setEnabled(True)
         self.btn_generate.setEnabled(True)
         self.btn_open_video.setEnabled(True)
@@ -331,6 +332,10 @@ class VideoEditorApp(QMainWindow):
         if not self.subtitle_lines:
             self.lbl_status.setText("Error: No subtitles generated")
             return
+        
+        pos = self.subtitle_preview.save_position()
+        self.subtitle_style.update(pos)
+        
         output_path, _ = QFileDialog.getSaveFileName(self, "Save Video", "", "MP4 Files (*.mp4);;All Files (*)")
         if not output_path:
             return
