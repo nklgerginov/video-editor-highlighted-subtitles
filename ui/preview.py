@@ -114,6 +114,29 @@ class SubtitleBox(QGraphicsRectItem):
         else:
             super().mouseMoveEvent(event)
 
+    def _update_word_positions(self):
+        if self.subtitle_box is None or self.project is None:
+            return
+        
+        box_x = self.subtitle_box.pos().x()
+        box_y = self.subtitle_box.pos().y()
+        style = self.project.style
+        
+        x_offset = 20
+        y_offset = 20 + style.font_size
+        
+        for line in self.project.subtitles:
+            for word in line.words:
+                for item in self.subtitle_items:
+                    if item.toPlainText() == word.text:
+                        item.setPos(box_x + x_offset, box_y + y_offset)
+                        font_metrics = QFontMetrics(item.font())
+                        word_width = font_metrics.horizontalAdvance(word.text)
+                        x_offset += word_width + 10
+                        break
+            x_offset = 20
+            y_offset += style.font_size * 1.5
+
     def mouseReleaseEvent(self, event):
         self.resizing = False
         self.resize_direction = None
@@ -168,8 +191,9 @@ class VideoPreviewScene(QGraphicsScene):
         if self.project is None:
             return
 
-        for item in self.subtitle_items:
-            self.removeItem(item)
+        for item in list(self.subtitle_items):
+            if item.scene() is not None:
+                self.removeItem(item)
         self.subtitle_items = []
 
         if self.subtitle_box is None:
@@ -188,7 +212,7 @@ class VideoPreviewScene(QGraphicsScene):
                 is_active = (self.current_time >= word.start_time and
                            self.current_time < word.end_time)
 
-                text_item = QGraphicsTextItem(word.text, self.subtitle_box)
+                text_item = QGraphicsTextItem(word.text)
                 if is_active:
                     font = QFont(style.font_family, style.highlight_font_size)
                     font.setBold(style.bold)
@@ -201,8 +225,12 @@ class VideoPreviewScene(QGraphicsScene):
                     text_item.setDefaultTextColor(QColor(style.text_color))
                 text_item.setFont(font)
 
-                text_item.setPos(x_offset, y_offset)
+                text_item.setPos(
+                    self.subtitle_box.pos().x() + x_offset,
+                    self.subtitle_box.pos().y() + y_offset
+                )
                 text_item.setZValue(20)
+                self.addItem(text_item)
                 self.subtitle_items.append(text_item)
 
                 font_metrics = QFontMetrics(font)
@@ -216,11 +244,34 @@ class VideoPreviewScene(QGraphicsScene):
         self.current_time = time
         self.update_subtitles()
 
+    def _update_word_positions(self):
+        if self.subtitle_box is None or self.project is None:
+            return
+        
+        box_x = self.subtitle_box.pos().x()
+        box_y = self.subtitle_box.pos().y()
+        style = self.project.style
+        
+        x_offset = 20
+        y_offset = 20 + style.font_size
+        
+        for line in self.project.subtitles:
+            for word in line.words:
+                for item in self.subtitle_items:
+                    if item.toPlainText() == word.text:
+                        item.setPos(box_x + x_offset, box_y + y_offset)
+                        font_metrics = QFontMetrics(item.font())
+                        word_width = font_metrics.horizontalAdvance(word.text)
+                        x_offset += word_width + 10
+                        break
+            x_offset = 20
+            y_offset += style.font_size * 1.5
+
     def mouseReleaseEvent(self, event):
         if self.subtitle_box and self.position_changed_callback:
             position = self.subtitle_box.get_position()
             self.position_changed_callback(position)
-            self.update_subtitles()
+            self._update_word_positions()
         super().mouseReleaseEvent(event)
 
 
