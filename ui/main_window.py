@@ -422,7 +422,10 @@ class MainWindow(QMainWindow):
                         model_path = try_path
                         break
         if not os.path.exists(model_path):
-            msg = f"Vosk model not found at: {model_path}\n\nDownload models from: https://alphacephei.com/vosk/models\nand place them in the 'models' folder"
+            msg = f"Vosk model not found at: {model_path}
+
+Download models from: https://alphacephei.com/vosk/models
+and place them in the 'models' folder"
             QMessageBox.warning(self, "Model Not Found", msg)
             return
         self.processing_label.setVisible(True)
@@ -445,7 +448,8 @@ class MainWindow(QMainWindow):
     def _on_proc_err(self, error):
         self.processing_label.setVisible(False)
         self.process_button.setEnabled(True)
-        QMessageBox.critical(self, "Error", f"Failed to generate subtitles:\n{error}")
+        QMessageBox.critical(self, "Error", f"Failed to generate subtitles:
+{error}")
 
     def _export(self):
         default_name = os.path.splitext(os.path.basename(self.current_video_path))[0] + "_subtitled.mp4"
@@ -462,12 +466,14 @@ class MainWindow(QMainWindow):
     def _on_exp_done(self, path):
         self.export_label.setVisible(False)
         self.export_button.setEnabled(True)
-        QMessageBox.information(self, "Success", f"Video exported to:\n{path}")
+        QMessageBox.information(self, "Success", f"Video exported to:
+{path}")
 
     def _on_exp_err(self, error):
         self.export_label.setVisible(False)
         self.export_button.setEnabled(True)
-        QMessageBox.critical(self, "Error", f"Export failed:\n{error}")
+        QMessageBox.critical(self, "Error", f"Export failed:
+{error}")
 
     def closeEvent(self, event):
         self._stop()
