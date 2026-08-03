@@ -64,10 +64,14 @@ class VideoExporter:
   
         position = self.project.position
 
+        bg_duration = video.duration
+        if self.project.subtitles:
+            bg_duration = max(line.end_time for line in self.project.subtitles)
+        
         bg_clip = ColorClip(
             size=(position.width, position.height),
             color=(0, 0, 0, 128),
-            duration=self.project.subtitles[-1].end_time if self.project.subtitles else video.duration
+            duration=bg_duration
         )
         bg_clip = bg_clip.set_position((position.x, position.y), relative=False).set_start(0)
         subtitle_clips.append(bg_clip)
@@ -76,6 +80,7 @@ class VideoExporter:
         y_pos = position.y + 20 + style.font_size
 
         for line in self.project.subtitles:
+            line_x_pos = x_pos
             for word in line.words:
                 normal_clip = self._create_text_clip(
                     word.text,
@@ -93,8 +98,8 @@ class VideoExporter:
                     "transparent"
                 )
 
-                normal_clip = normal_clip.set_position((x_pos, y_pos), relative=False)
-                highlight_clip = highlight_clip.set_position((x_pos, y_pos), relative=False)
+                normal_clip = normal_clip.set_position((line_x_pos, y_pos), relative=False)
+                highlight_clip = highlight_clip.set_position((line_x_pos, y_pos), relative=False)
 
                 normal_clip = normal_clip.set_start(word.start_time).set_duration(
                     word.end_time - word.start_time
@@ -105,6 +110,11 @@ class VideoExporter:
 
                 subtitle_clips.append(normal_clip)
                 subtitle_clips.append(highlight_clip)
+                
+                word_width = len(word.text) * style.font_size * 0.6
+                line_x_pos += word_width + 10
+            
+            y_pos += style.font_size * 1.5
 
         return subtitle_clips
 

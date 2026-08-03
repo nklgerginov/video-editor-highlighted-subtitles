@@ -103,8 +103,6 @@ class MainWindow(QMainWindow):
         dark_palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.black)
-        dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
-        dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.ButtonText, QColor(127, 127, 127))
         QApplication.setPalette(dark_palette)
         QApplication.setStyle("Fusion")
 
@@ -465,10 +463,7 @@ class MainWindow(QMainWindow):
         if not os.path.exists(model_path):
             QMessageBox.warning(
                 self, "Model Not Found", 
-                f"Vosk model not found at: {model_path}
-
-Download models from: https://alphacephei.com/vosk/models
-and place them in the 'models' folder"
+                f"Vosk model not found at: {model_path}\n\nDownload models from: https://alphacephei.com/vosk/models\nand place them in the 'models' folder"
             )
             return
         

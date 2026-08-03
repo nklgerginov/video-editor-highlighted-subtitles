@@ -1,4 +1,21 @@
-moviepy>=2.0.0
+# Video Editor with Highlighted Subtitles - Requirements
+# Python 3.8+
+
+# GUI Framework
 PyQt6>=6.0.0
+
+# Video Processing
+moviepy>=1.0.0
+pydub>=0.25.0
+
+# Audio Processing and Speech Recognition
+SpeechRecognition>=3.8.0
 vosk>=0.3.0
-ffmpeg-python>=0.2.0
+
+# Numerical Computing
+numpy>=1.20.0
+
+# FFmpeg is required but installed separately
+# On Ubuntu/Debian: sudo apt-get install ffmpeg
+# On macOS: brew install ffmpeg
+# On Windows: Download from https://ffmpeg.org/
