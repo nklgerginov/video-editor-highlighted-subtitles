@@ -450,8 +450,8 @@ and place them in the 'models' folder"
     def _on_proc_err(self, error):
         self.processing_label.setVisible(False)
         self.process_button.setEnabled(True)
-        QMessageBox.critical(self, "Error", f"Failed to generate subtitles:
-{error}")
+        QMessageBox.critical(self, "Error", "Failed to generate subtitles:
+" + str(error))
 
     def _export(self):
         default_name = os.path.splitext(os.path.basename(self.current_video_path))[0] + "_subtitled.mp4"
@@ -468,14 +468,14 @@ and place them in the 'models' folder"
     def _on_exp_done(self, path):
         self.export_label.setVisible(False)
         self.export_button.setEnabled(True)
-        QMessageBox.information(self, "Success", f"Video exported to:
-{path}")
+        QMessageBox.information(self, "Success", "Video exported to:
+" + str(path))
 
     def _on_exp_err(self, error):
         self.export_label.setVisible(False)
         self.export_button.setEnabled(True)
-        QMessageBox.critical(self, "Error", f"Export failed:
-{error}")
+        QMessageBox.critical(self, "Error", "Export failed:
+" + str(error))
 
     def closeEvent(self, event):
         self._stop()
