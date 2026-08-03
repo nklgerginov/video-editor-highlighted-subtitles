@@ -108,10 +108,10 @@ class MainWindow(QMainWindow):
         dark_palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.black)
-    
- 
- 
- 
+
+
+
+
         dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
 
         dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.ButtonText, QColor(127, 127, 127))
