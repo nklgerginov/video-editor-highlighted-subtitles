@@ -1,18 +1,24 @@
 """
 Subtitle preview widget with drag-and-drop positioning.
-Displays subtitles with real-time highlighting and Canva-style drag positioning.
+Displays subtitles with proper font styling and Canva-style drag positioning.
 """
 
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QFrame
 from PyQt6.QtCore import Qt, QTimer, QPoint
-from PyQt6.QtGui import QMouseEvent, QEnterEvent
+from PyQt6.QtGui import QMouseEvent, QEnterEvent, QFont
 
 
 class DraggableLabel(QLabel):
     def __init__(self, text="", parent=None):
         super().__init__(text, parent)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.setStyleSheet("background-color: rgba(0, 0, 0, 150); border-radius: 10px; padding: 20px; font-weight: bold; color: white;")
+        self.setStyleSheet("""
+            background-color: rgba(0, 0, 0, 150);
+            border-radius: 10px;
+            padding: 20px;
+            font-weight: bold;
+            color: white;
+        """)
         self.drag_start_position = None
         self.is_dragging = False
         
@@ -33,17 +39,29 @@ class DraggableLabel(QLabel):
         if event.button() == Qt.MouseButton.LeftButton:
             self.is_dragging = False
             self.drag_start_position = None
-            # Notify parent that position changed
             if hasattr(self.parent(), 'on_label_moved'):
                 self.parent().on_label_moved()
             event.accept()
     
     def enterEvent(self, event):
-        self.setStyleSheet("background-color: rgba(0, 0, 0, 180); border-radius: 10px; padding: 20px; font-weight: bold; color: white; border: 2px dashed #0078d7;")
+        self.setStyleSheet("""
+            background-color: rgba(0, 0, 0, 180);
+            border-radius: 10px;
+            padding: 20px;
+            font-weight: bold;
+            color: white;
+            border: 2px dashed #0078d7;
+        """)
         super().enterEvent(event)
     
     def leaveEvent(self, event):
-        self.setStyleSheet("background-color: rgba(0, 0, 0, 150); border-radius: 10px; padding: 20px; font-weight: bold; color: white;")
+        self.setStyleSheet("""
+            background-color: rgba(0, 0, 0, 150);
+            border-radius: 10px;
+            padding: 20px;
+            font-weight: bold;
+            color: white;
+        """)
         super().leaveEvent(event)
 
 
@@ -100,7 +118,16 @@ class SubtitlePreviewWidget(QWidget):
             fontsize = self.subtitle_style.get('fontsize', 24)
             color = self.subtitle_style.get('color', 'white')
             font = self.subtitle_style.get('font', 'Arial')
-            self.draggable_label.setStyleSheet(f"background-color: rgba(0, 0, 0, 150); border-radius: 10px; padding: 20px; font-weight: bold; color: {color}; font-size: {fontsize}px; font-family: {font};")
+            
+            font_obj = QFont(font, fontsize)
+            self.draggable_label.setFont(font_obj)
+            
+            self.draggable_label.setStyleSheet(f"""
+                background-color: rgba(0, 0, 0, 150);
+                border-radius: 10px;
+                padding: 20px;
+                color: {color};
+            """)
             
             container_width = self.container.width()
             container_height = self.container.height()
@@ -160,12 +187,12 @@ class SubtitlePreviewWidget(QWidget):
                 break
         
         if active_line and self.draggable_label:
-            html = ""
+            text = ""
             for word in active_line.words:
                 if word.start_time <= self.current_time <= word.end_time:
-                    html += f"<span style='background-color: yellow; color: black; padding: 2px 4px; font-size: 1.2em;'>{word.text}</span> "
+                    text += f"{word.text} "
                 else:
-                    html += f"<span>{word.text}</span> "
-            self.draggable_label.setText(html)
+                    text += f"{word.text} "
+            self.draggable_label.setText(text)
         elif self.draggable_label:
             self.draggable_label.setText("")
