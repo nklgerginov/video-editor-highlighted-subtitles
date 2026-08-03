@@ -2,7 +2,7 @@
 import os
 from typing import List, Optional
 from moviepy import VideoFileClip, CompositeVideoClip, TextClip, ColorClip
-from models import VideoProject, Word, SubtitleLine, SubtitleStyle, SubtitlePosition
+from models import VideoProject, SubtitleStyle, SubtitlePosition
 
 
 class VideoExporter:
@@ -10,22 +10,14 @@ class VideoExporter:
         self.project = project
     
     def _get_font_path(self, font_family: str) -> Optional[str]:
-        font_paths = [f"{font_family}.ttf", f"/usr/share/fonts/{font_family}.ttf", f"/usr/share/fonts/truetype/{font_family}.ttf", f"C:/Windows/Fonts/{font_family}.ttf", f"C:/Windows/Fonts/{font_family}.TTF"]
+        font_paths = [f"{font_family}.ttf", f"/usr/share/fonts/{font_family}.ttf", f"C:/Windows/Fonts/{font_family}.ttf"]
         for path in font_paths:
             if os.path.exists(path):
                 return path
-        try:
-            import matplotlib.font_manager as fm
-            font = fm.FontProperties(family=font_family)
-            font_path = fm.findfont(font)
-            if font_path:
-                return font_path
-        except ImportError:
-            pass
         return None
     
     def _create_text_clip(self, text: str, font_family: str, font_size: int, color: str, bg_color: str = "transparent", font_path: Optional[str] = None) -> TextClip:
-        clip_kwargs = {"txt": text, "size": None, "color": color, "bg_color": bg_color, "fontsize": font_size, "stroke_color": None, "stroke_width": 0}
+        clip_kwargs = {"txt": text, "size": None, "color": color, "bg_color": bg_color, "fontsize": font_size}
         if font_path is None:
             font_path = self._get_font_path(font_family)
         if font_path and os.path.exists(font_path):
@@ -62,11 +54,11 @@ class VideoExporter:
     
     def export(self, output_path: str, quality: str = "high", fps: int = 30) -> str:
         video = VideoFileClip(self.project.video_path)
-        quality_params = {"low": {"bitrate": "500k", "preset": "ultrafast"}, "medium": {"bitrate": "2000k", "preset": "fast"}, "high": {"bitrate": "5000k", "preset": "medium"}, "ultra": {"bitrate": "10000k", "preset": "slow"}}
+        quality_params = {"low": {"bitrate": "500k"}, "medium": {"bitrate": "2000k"}, "high": {"bitrate": "5000k"}, "ultra": {"bitrate": "10000k"}}
         params = quality_params.get(quality, quality_params["high"])
         try:
             final_video = CompositeVideoClip([video] + self._create_highlighted_subtitle_clips(video))
-            final_video.write_videofile(output_path, fps=fps, codec="libx264", audio_codec="aac", bitrate=params["bitrate"], preset=params["preset"], threads=4, ffmpeg_params=["-crf", "18", "-pix_fmt", "yuv420p"])
+            final_video.write_videofile(output_path, fps=fps, codec="libx264", audio_codec="aac", bitrate=params["bitrate"], threads=4)
             return output_path
         except Exception as e:
             video.close()
