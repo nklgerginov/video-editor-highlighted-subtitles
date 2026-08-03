@@ -57,6 +57,7 @@ class VideoFrameGrabber(QObject):
     frame_available = pyqtSignal(QPixmap)
 
     def __init__(self, video_widget):
+        
         super().__init__()
         self.video_widget = video_widget
         self.timer = QTimer(self)
