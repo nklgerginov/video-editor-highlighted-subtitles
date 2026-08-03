@@ -58,7 +58,7 @@ class VideoFrameGrabber(QObject):
 
     def __init__(self, video_widget):
         
-        super().__init__()
+super().__init__()
         self.video_widget = video_widget
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.grab_frame)
@@ -105,6 +105,7 @@ class MainWindow(QMainWindow):
         dark_palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.black)
         dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
+
         dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.ButtonText, QColor(127, 127, 127))
         QApplication.setPalette(dark_palette)
         QApplication.setStyle("Fusion")
