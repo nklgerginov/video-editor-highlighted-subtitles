@@ -2,6 +2,7 @@
 Video export module.
 Handles creating subtitle clips and exporting the final video with subtitles.
 Supports Canva-style positioning.
+Supports MoviePy v2.0+ imports.
 """
 
 from PyQt6.QtCore import QThread, pyqtSignal
@@ -26,7 +27,8 @@ class VideoExporter(QThread):
             self.message.emit("Loading video...")
             self.progress.emit(10)
             
-            from moviepy.editor import VideoFileClip
+            # FIX: Use direct imports for MoviePy v2.0+
+            from moviepy import VideoFileClip
             video = VideoFileClip(self.video_path)
             
             self.message.emit("Generating subtitle clips...")
@@ -41,7 +43,7 @@ class VideoExporter(QThread):
             self.message.emit("Compositing video...")
             self.progress.emit(50)
             
-            from moviepy.editor import CompositeVideoClip
+            from moviepy import CompositeVideoClip
             final_video = CompositeVideoClip([video] + subtitle_clips)
             
             self.message.emit("Exporting video...")
@@ -76,7 +78,8 @@ class VideoExporter(QThread):
         self._is_running = False
     
     def _create_subtitle_clips(self, video):
-        from moviepy.editor import TextClip
+        # FIX: Use direct import for MoviePy v2.0+
+        from moviepy import TextClip
         
         subtitle_clips = []
         
