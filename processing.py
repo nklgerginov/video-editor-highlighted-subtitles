@@ -48,7 +48,7 @@ class SubtitleGenerator:
                         ))
         final_result = json.loads(rec.FinalResult())
         if "result" in final_result:
-
+         
             for word_info in final_result["result"]:
                 all_words.append(Word(
                     text=word_info["word"],
