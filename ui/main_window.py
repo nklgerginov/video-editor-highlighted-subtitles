@@ -58,7 +58,7 @@ class VideoFrameGrabber(QObject):
 
     def __init__(self, video_widget):
         
-super().__init__()
+        super().__init__()
         self.video_widget = video_widget
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.grab_frame)
