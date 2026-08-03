@@ -1,122 +1,153 @@
-"""
-Video export module.
-Handles creating subtitle clips and exporting the final video with subtitles.
-Supports Canva-style positioning.
-Supports MoviePy v2.0+ imports.
-"""
+"""Video export module for creating videos with highlighted subtitles."""
 
-from PyQt6.QtCore import QThread, pyqtSignal
+import os
+from typing import List, Optional
+from moviepy import VideoFileClip, CompositeVideoClip, TextClip, ColorClip
+from models import VideoProject, SubtitleStyle, SubtitlePosition
 
 
-class VideoExporter(QThread):
-    progress = pyqtSignal(int)
-    message = pyqtSignal(str)
-    export_complete = pyqtSignal(str)
-    error_occurred = pyqtSignal(str)
-    
-    def __init__(self, video_path, subtitle_lines, output_path, subtitle_style=None):
-        super().__init__()
-        self.video_path = video_path
-        self.subtitle_lines = subtitle_lines
-        self.output_path = output_path
-        self.subtitle_style = subtitle_style or {}
-        self._is_running = True
-    
-    def run(self):
+class VideoExporter:
+    def __init__(self, project: VideoProject):
+        self.project = project
+
+    def _get_font_path(self, font_family: str) -> Optional[str]:
+        font_paths = [
+            f"{font_family}.ttf",
+            f"/usr/share/fonts/{font_family}.ttf",
+            f"/usr/share/fonts/truetype/{font_family}.ttf",
+            f"C:/Windows/Fonts/{font_family}.ttf",
+            f"C:/Windows/Fonts/{font_family}.TTF",
+        ]
+        for path in font_paths:
+            if os.path.exists(path):
+                return path
+        return None
+
+    def _create_text_clip(
+        self,
+        text: str,
+        font_family: str,
+        font_size: int,
+        color: str,
+        bg_color: str = "transparent",
+        font_path: Optional[str] = None,
+    ) -> TextClip:
+        clip_kwargs = {
+            "txt": text,
+            "size": None,
+            "color": color,
+            "bg_color": bg_color,
+            "fontsize": font_size,
+            "stroke_color": None,
+            "stroke_width": 0,
+        }
+
+        if font_path is None:
+            font_path = self._get_font_path(font_family)
+
+        if font_path and os.path.exists(font_path):
+            clip_kwargs["font"] = font_path
+        else:
+            clip_kwargs["font"] = font_family
+
         try:
-            self.message.emit("Loading video...")
-            self.progress.emit(10)
-            
-            from moviepy import VideoFileClip
-            video = VideoFileClip(self.video_path)
-            
-            self.message.emit("Generating subtitle clips...")
-            self.progress.emit(30)
-            
-            subtitle_clips = self._create_subtitle_clips(video)
-            
-            if not self._is_running:
-                video.close()
-                return
-            
-            self.message.emit("Compositing video...")
-            self.progress.emit(50)
-            
-            from moviepy import CompositeVideoClip
-            final_video = CompositeVideoClip([video] + subtitle_clips)
-            
-            self.message.emit("Exporting video...")
-            self.progress.emit(70)
-            
-            final_video.write_videofile(
-                self.output_path,
-                codec='libx264',
-                audio_codec='aac',
-                fps=video.fps,
-                threads=4,
-                preset='slow',
-                bitrate='8000k',
-                audio_bitrate='192k'
-            )
-            
-            self.progress.emit(100)
-            self.message.emit("Export complete!")
-            self.export_complete.emit(self.output_path)
-            
-            video.close()
-            final_video.close()
-            
-        except Exception as e:
-            import traceback
-            error_msg = str(e)
-            traceback_str = traceback.format_exc()
-            combined = error_msg + chr(10) + traceback_str
-            self.error_occurred.emit(combined)
-    
-    def stop(self):
-        self._is_running = False
-    
-    def _create_subtitle_clips(self, video):
-        from moviepy import TextClip
-        
+            return TextClip(**clip_kwargs)
+        except TypeError as e:
+            if "multiple values for argument 'font'" in str(e):
+                clip_kwargs.pop("font", None)
+                clip_kwargs["font"] = font_family
+                return TextClip(**clip_kwargs)
+            raise
+
+    def _create_highlighted_subtitle_clips(self, video: VideoFileClip) -> List:
         subtitle_clips = []
-        
-        font_family = self.subtitle_style.get('font', 'Arial')
-        fontsize = self.subtitle_style.get('fontsize', 40)
-        color = self.subtitle_style.get('color', 'white')
-        highlight_color = self.subtitle_style.get('highlight_color', 'yellow')
-        stroke_color = self.subtitle_style.get('stroke_color', 'black')
-        stroke_width = self.subtitle_style.get('stroke_width', 2)
-        highlight_scale = self.subtitle_style.get('highlight_scale', 1.2)
-        
-        position_x = self.subtitle_style.get('position_x', 0.5)
-        position_y = self.subtitle_style.get('position_y', 0.85)
-        position = (position_x, position_y)
-        
-        for line in self.subtitle_lines:
+        style = self.project.style
+        position = self.project.position
+
+        # Background box
+        bg_clip = ColorClip(
+            size=(position.width, position.height),
+            color=(0, 0, 0, 128),
+            duration=(
+                self.project.subtitles[-1].end_time
+                if self.project.subtitles
+                else video.duration
+            ),
+        )
+        bg_clip = bg_clip.set_position(
+            (position.x, position.y), relative=False
+        ).set_start(0)
+        subtitle_clips.append(bg_clip)
+
+        # Position for text
+        x_pos = position.x + 20
+        y_pos = position.y + 20 + style.font_size
+
+        for line in self.project.subtitles:
             for word in line.words:
-                word_clip = TextClip(
+                # Normal clip (always visible)
+                normal_clip = self._create_text_clip(
                     word.text,
-                    fontsize=fontsize,
-                    font=font_family,
-                    color=color,
-                    stroke_color=stroke_color,
-                    stroke_width=stroke_width,
-                    bg_color='transparent'
-                ).set_position(position).set_start(word.start_time).set_duration(word.end_time - word.start_time)
-                
-                subtitle_clips.append(word_clip)
-                
-                highlighted_clip = TextClip(
+                    style.font_family,
+                    style.font_size,
+                    style.text_color,
+                    "transparent",
+                )
+
+                # Highlight clip (only visible during word's time)
+                highlight_clip = self._create_text_clip(
                     word.text,
-                    fontsize=int(fontsize * highlight_scale),
-                    font=font_family,
-                    color=highlight_color,
-                    stroke_color=stroke_color,
-                    stroke_width=stroke_width,
-                    bg_color='transparent'
-                ).set_position(position).set_start(word.start_time).set_duration(word.end_time - word.start_time)
-                
-                subtitle_clips.append(highlighted_clip)
-        
+                    style.font_family,
+                    int(style.font_size * style.highlight_scale),
+                    style.highlight_color,
+                    "transparent",
+                )
+
+                # Position both clips
+                normal_clip = normal_clip.set_position((x_pos, y_pos), relative=False)
+                highlight_clip = highlight_clip.set_position(
+                    (x_pos, y_pos), relative=False
+                )
+
+                # Set timing
+                normal_clip = normal_clip.set_start(word.start_time).set_duration(
+                    word.end_time - word.start_time
+                )
+                highlight_clip = highlight_clip.set_start(word.start_time).set_duration(
+                    word.end_time - word.start_time
+                )
+
+                subtitle_clips.append(normal_clip)
+                subtitle_clips.append(highlight_clip)
+
         return subtitle_clips
+
+    def export(self, output_path: str, quality: str = "high", fps: int = 30) -> str:
+        video = VideoFileClip(self.project.video_path)
+        quality_params = {
+            "low": {"bitrate": "500k"},
+            "medium": {"bitrate": "2000k"},
+            "high": {"bitrate": "5000k"},
+            "ultra": {"bitrate": "10000k"},
+        }
+        params = quality_params.get(quality, quality_params["high"])
+
+        try:
+            final_video = CompositeVideoClip(
+                [video] + self._create_highlighted_subtitle_clips(video)
+            )
+            final_video.write_videofile(
+                output_path,
+                fps=fps,
+                codec="libx264",
+                audio_codec="aac",
+                bitrate=params["bitrate"],
+                threads=4,
+                ffmpeg_params=["-crf", "18", "-pix_fmt", "yuv420p"],
+            )
+            return output_path
+        except Exception as e:
+            video.close()
+            raise RuntimeError(f"Export failed: {str(e)}")
+        finally:
+            video.close()

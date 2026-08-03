@@ -1,220 +1,107 @@
-"""
-Video processing and subtitle generation module.
-Handles audio extraction, conversion, and word-level subtitle generation using Vosk.
-Supports MoviePy v2.0+ imports.
-"""
+"""Video processing module for subtitle generation using Vosk."""
 
 import os
 import json
-import wave
-import subprocess
-from PyQt6.QtCore import QThread, pyqtSignal
+import tempfile
+from typing import List, Tuple
+from moviepy import VideoFileClip
+from models import Word, SubtitleLine, VideoProject
 
 
-class VideoProcessor(QThread):
-    progress = pyqtSignal(int)
-    message = pyqtSignal(str)
-    processing_complete = pyqtSignal(list)
-    error_occurred = pyqtSignal(str)
-    
-    def __init__(self, video_path, model_path=None):
-        super().__init__()
-        self.video_path = video_path
-        self.model_path = model_path
-        self._is_running = True
-    
-    def run(self):
-        try:
-            self.message.emit("Extracting audio from video...")
-            self.progress.emit(10)
-            
-            audio_path = self._extract_audio()
-            if not self._is_running:
-                return
-            
-            self.message.emit("Converting audio format...")
-            self.progress.emit(20)
-            
-            wav_path = self._convert_to_wav(audio_path)
-            if not self._is_running:
-                return
-            
-            self.message.emit("Generating subtitles...")
-            self.progress.emit(30)
-            
-            subtitle_lines = self._generate_subtitles(wav_path)
-            if not self._is_running:
-                return
-            
-            self.progress.emit(90)
-            self.message.emit("Processing complete!")
-            self.progress.emit(100)
-            self.processing_complete.emit(subtitle_lines)
-            
-        except Exception as e:
-            import traceback
-            self.error_occurred.emit(f"Error: {str(e)}\n{traceback.format_exc()}")
-    
-    def stop(self):
-        self._is_running = False
-    
-    def _extract_audio(self):
-        try:
-            # FIX: Use direct import for MoviePy v2.0+
-            from moviepy import VideoFileClip
-            video = VideoFileClip(self.video_path)
-            audio_path = os.path.join(
-                os.path.dirname(self.video_path),
-                f"{os.path.splitext(os.path.basename(self.video_path))[0]}_audio.mp3"
-            )
-            video.audio.write_audiofile(audio_path, codec='mp3', bitrate='192k')
-            video.close()
-            return audio_path
-        except Exception as e:
-            output_path = os.path.join(
-                os.path.dirname(self.video_path),
-                f"{os.path.splitext(os.path.basename(self.video_path))[0]}_audio.mp3"
-            )
-            cmd = [
-                'ffmpeg', '-y', '-i', self.video_path,
-                '-vn', '-acodec', 'libmp3lame', '-q:a', '2',
-                output_path
-            ]
-            subprocess.run(cmd, check=True, capture_output=True)
-            return output_path
-    
-    def _convert_to_wav(self, audio_path):
-        try:
-            # FIX: Use direct import for MoviePy v2.0+
-            from moviepy import AudioFileClip
-            audio = AudioFileClip(audio_path)
-            wav_path = os.path.join(
-                os.path.dirname(audio_path),
-                f"{os.path.splitext(os.path.basename(audio_path))[0]}.wav"
-            )
-            audio.write_audiofile(wav_path, codec='pcm_s16le', fps=16000)
-            audio.close()
-            return wav_path
-        except Exception:
-            wav_path = os.path.join(
-                os.path.dirname(audio_path),
-                f"{os.path.splitext(os.path.basename(audio_path))[0]}.wav"
-            )
-            cmd = [
-                'ffmpeg', '-y', '-i', audio_path,
-                '-acodec', 'pcm_s16le', '-ac', '1', '-ar', '16000',
-                wav_path
-            ]
-            subprocess.run(cmd, check=True, capture_output=True)
-            return wav_path
-    
-    def _generate_subtitles(self, wav_path):
-        if not self.model_path:
-            raise ValueError("Vosk model path not provided")
-        
-        if not os.path.exists(self.model_path):
-            raise FileNotFoundError(f"Model not found at: {self.model_path}")
-        
+class SubtitleGenerator:
+    def __init__(self, vosk_model_path: str):
+        self.vosk_model_path = vosk_model_path
+        self._validate_vosk_model()
+
+    def _validate_vosk_model(self):
+        if not os.path.exists(self.vosk_model_path):
+            raise FileNotFoundError(f"Vosk model not found at: {self.vosk_model_path}")
+
+    def extract_audio(self, video_path: str, output_audio_path: str = None) -> str:
+        if output_audio_path is None:
+            output_audio_path = tempfile.mktemp(suffix=".wav")
+        video = VideoFileClip(video_path)
+        audio = video.audio
+        audio.write_audiofile(output_audio_path, codec="pcm_s16le", fps=16000)
+        audio.close()
+        video.close()
+        return output_audio_path
+
+    def generate_subtitles(
+        self, audio_path: str, video_duration: float = None
+    ) -> Tuple[List[SubtitleLine], float]:
         import vosk
-        model = vosk.Model(self.model_path)
-        
-        wf = wave.open(wav_path, "rb")
-        
-        if wf.getnchannels() != 1:
-            wf.close()
-            cmd = [
-                'ffmpeg', '-y', '-i', wav_path,
-                '-ac', '1', '-ar', str(wf.getframerate()),
-                wav_path + '.mono.wav'
-            ]
-            subprocess.run(cmd, check=True, capture_output=True)
-            wav_path = wav_path + '.mono.wav'
-            wf = wave.open(wav_path, "rb")
-        
-        if wf.getsampwidth() != 2:
-            raise ValueError("Audio must be 16-bit PCM")
-        
-        rec = vosk.KaldiRecognizer(model, wf.getframerate())
+
+        model = vosk.Model(self.vosk_model_path)
+        with open(audio_path, "rb") as f:
+            audio_data = f.read()
+        rec = vosk.KaldiRecognizer(model, 16000.0)
         rec.SetWords(True)
-        
-        from models import SubtitleWord, SubtitleLine
-        
-        subtitle_lines = []
-        current_line_words = []
-        current_line_start = 0
-        
-        while self._is_running:
-            data = wf.readframes(4000)
-            if len(data) == 0:
-                break
-            
-            if rec.AcceptWaveform(data):
+        chunk_size = 4000
+        all_words = []
+        for i in range(0, len(audio_data), chunk_size):
+            chunk = audio_data[i : i + chunk_size]
+            if rec.AcceptWaveform(chunk):
                 result = json.loads(rec.Result())
-                
                 if "result" in result:
-                    for item in result["result"]:
-                        word = item.get("word", "")
-                        start = item.get("start", 0)
-                        end = item.get("end", 0)
-                        
-                        if word:
-                            subtitle_word = SubtitleWord(word, start, end)
-                            current_line_words.append(subtitle_word)
-                            
-                            if (end - current_line_start > 5.0) or (len(current_line_words) >= 10):
-                                if current_line_words:
-                                    line = SubtitleLine(
-                                        current_line_words,
-                                        current_line_start,
-                                        current_line_words[-1].end_time
-                                    )
-                                    subtitle_lines.append(line)
-                                    current_line_words = []
-                                    current_line_start = end
-            
-            self.progress.emit(30 + int((wf.tell() / wf.getnframes()) * 50))
-        
-        if current_line_words:
-            line = SubtitleLine(
-                current_line_words,
-                current_line_start,
-                current_line_words[-1].end_time
-            )
-            subtitle_lines.append(line)
-            current_line_words = []
-        
+                    for word_info in result["result"]:
+                        all_words.append(
+                            Word(
+                                text=word_info["word"],
+                                start_time=float(word_info["start"]),
+                                end_time=float(word_info["end"]),
+                            )
+                        )
         final_result = json.loads(rec.FinalResult())
         if "result" in final_result:
-            current_line_start = 0
-            current_line_words = []
-            
-            for item in final_result["result"]:
-                word = item.get("word", "")
-                start = item.get("start", 0)
-                end = item.get("end", 0)
-                
-                if word:
-                    subtitle_word = SubtitleWord(word, start, end)
-                    current_line_words.append(subtitle_word)
-                    
-                    if (end - current_line_start > 5.0) or (len(current_line_words) >= 10):
-                        if current_line_words:
-                            line = SubtitleLine(
-                                current_line_words,
-                                current_line_start,
-                                current_line_words[-1].end_time
-                            )
-                            subtitle_lines.append(line)
-                            current_line_words = []
-                            current_line_start = end
-            
-            if current_line_words:
-                line = SubtitleLine(
-                    current_line_words,
-                    current_line_start,
-                    current_line_words[-1].end_time
+            for word_info in final_result["result"]:
+                all_words.append(
+                    Word(
+                        text=word_info["word"],
+                        start_time=float(word_info["start"]),
+                        end_time=float(word_info["end"]),
+                    )
                 )
-                subtitle_lines.append(line)
-        
-        wf.close()
-        return subtitle_lines
+        if video_duration is None and all_words:
+            video_duration = max(w.end_time for w in all_words)
+        elif video_duration is None:
+            video_duration = 0.0
+
+        subtitle_lines = []
+        current_line = SubtitleLine()
+        for i, word in enumerate(all_words):
+            if i == 0 or (word.start_time - all_words[i - 1].end_time) > 2.0:
+                if current_line.words:
+                    current_line.end_time = all_words[i - 1].end_time
+                    subtitle_lines.append(current_line)
+                current_line = SubtitleLine()
+                current_line.start_time = word.start_time
+            current_line.add_word(word)
+
+        if current_line.words:
+            current_line.end_time = all_words[-1].end_time
+            subtitle_lines.append(current_line)
+
+        for line in subtitle_lines:
+            if line.end_time > video_duration:
+                line.end_time = video_duration
+
+        return subtitle_lines, video_duration
+
+    def process_video(self, video_path: str, vosk_model_path: str) -> VideoProject:
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_audio:
+            audio_path = tmp_audio.name
+        try:
+            video = VideoFileClip(video_path)
+            duration = video.duration
+            video.close()
+            self.extract_audio(video_path, audio_path)
+            subtitle_lines, _ = self.generate_subtitles(audio_path, duration)
+            return VideoProject(
+                video_path=video_path,
+                vosk_model_path=vosk_model_path,
+                subtitles=subtitle_lines,
+            )
+        finally:
+            if os.path.exists(audio_path):
+                os.unlink(audio_path)
