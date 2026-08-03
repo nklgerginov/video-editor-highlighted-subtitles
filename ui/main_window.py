@@ -121,7 +121,8 @@ class MainWindow(QMainWindow):
         style_group = QGroupBox("Subtitle Style")
         style_layout = QFormLayout()
         self.font_combo = QComboBox()
-        self._populate_font_combo()
+        self.font_combo.clear()
+        self.font_combo.addItems(QFontDatabase.families())
         style_layout.addRow("Font:", self.font_combo)
         self.font_size_spin = QSpinBox()
         self.font_size_spin.setRange(10, 200)
@@ -214,17 +215,13 @@ class MainWindow(QMainWindow):
         self.media_player.positionChanged.connect(self._update_time)
 
     def _load_fonts(self):
-        fdb = QFontDatabase()
+        families = QFontDatabase.families()
         self.font_combo.clear()
-        self.font_combo.addItems(fdb.families())
+        self.font_combo.addItems(families)
         for f in ["Arial", "Helvetica"]:
-            if f in fdb.families():
+            if f in families:
                 self.font_combo.setCurrentText(f)
                 break
-
-    def _populate_font_combo(self):
-        self.font_combo.clear()
-        self.font_combo.addItems(QFontDatabase().families())
 
     def _update_color_button(self, button, color):
         button.setStyleSheet(f"background-color: {color.name()}; color: {'black' if color.lightness() > 128 else 'white'};")
@@ -241,6 +238,20 @@ class MainWindow(QMainWindow):
         )
         if self.preview_widget.project:
             self.preview_widget.set_project(self.project)
+
+    def _choose_text_color(self):
+        color = QColorDialog.getColor(self.text_color, self, "Choose Text Color")
+        if color.isValid():
+            self.text_color = color
+            self._update_color_button(self.text_color_button, color)
+            self._update_style()
+
+    def _choose_highlight_color(self):
+        color = QColorDialog.getColor(self.highlight_color, self, "Choose Highlight Color")
+        if color.isValid():
+            self.highlight_color = color
+            self._update_color_button(self.highlight_color_button, color)
+            self._update_style()
 
     def _update_pos_spins(self, pos):
         self.x_spin.setValue(pos.x)
