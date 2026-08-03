@@ -1,4 +1,5 @@
 from typing import Optional, List
+<<<<<<< HEAD
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -11,12 +12,20 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QPixmap, QPainter, QPen, QBrush, QColor, QFont, QFontMetrics
 from PyQt6.QtCore import Qt, QSize, QTimer, pyqtSignal
+=======
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QGraphicsTextItem, QGraphicsRectItem, QGraphicsItem
+from PyQt6.QtGui import QPixmap, QPainter, QPen, QBrush, QColor, QFont, QFontMetrics, QMouseEvent
+from PyQt6.QtCore import Qt, QPoint, QRect, QSize, QTimer, pyqtSignal
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
 from models import VideoProject, Word, SubtitleLine, SubtitleStyle, SubtitlePosition
 
 
 class SubtitleBox(QGraphicsRectItem):
+<<<<<<< HEAD
     """Resizable and draggable subtitle box with 8 resize handles."""
 
+=======
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
     def __init__(self, x: int, y: int, width: int, height: int, parent=None):
         super().__init__(0, 0, width, height, parent)
         self.setPos(x, y)
@@ -25,8 +34,11 @@ class SubtitleBox(QGraphicsRectItem):
         self.setAcceptHoverEvents(True)
         self.setPen(QPen(QColor(200, 200, 200, 200), 2, Qt.PenStyle.DashLine))
         self.setBrush(QBrush(QColor(0, 0, 0, 128)))
+<<<<<<< HEAD
 
         # Resize handles
+=======
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
         self.resize_handle_size = 10
         self.resize_handles = []
         self._create_resize_handles()
@@ -36,6 +48,7 @@ class SubtitleBox(QGraphicsRectItem):
         self.original_rect = None
 
     def _create_resize_handles(self):
+<<<<<<< HEAD
         handle_positions = [
             (0, 0, "top-left"),
             (1, 0, "top-right"),
@@ -55,6 +68,11 @@ class SubtitleBox(QGraphicsRectItem):
                 self.resize_handle_size,
                 self,
             )
+=======
+        handle_positions = [(0, 0, "top-left"), (1, 0, "top-right"), (0, 1, "bottom-left"), (1, 1, "bottom-right"), (0.5, 0, "top"), (1, 0.5, "right"), (0.5, 1, "bottom"), (0, 0.5, "left")]
+        for rel_x, rel_y, direction in handle_positions:
+            handle = QGraphicsRectItem(-self.resize_handle_size/2, -self.resize_handle_size/2, self.resize_handle_size, self.resize_handle_size, self)
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
             handle.setPos(self.rect().width() * rel_x, self.rect().height() * rel_y)
             handle.setBrush(QBrush(QColor(255, 255, 255, 200)))
             handle.setPen(QPen(QColor(100, 100, 100, 200), 1))
@@ -65,6 +83,7 @@ class SubtitleBox(QGraphicsRectItem):
             self.resize_handles.append(handle)
 
     def update_resize_handles(self):
+<<<<<<< HEAD
         handle_positions = [
             (0, 0, "top-left"),
             (1, 0, "top-right"),
@@ -75,6 +94,9 @@ class SubtitleBox(QGraphicsRectItem):
             (0.5, 1, "bottom"),
             (0, 0.5, "left"),
         ]
+=======
+        handle_positions = [(0, 0, "top-left"), (1, 0, "top-right"), (0, 1, "bottom-left"), (1, 1, "bottom-right"), (0.5, 0, "top"), (1, 0.5, "right"), (0.5, 1, "bottom"), (0, 0.5, "left")]
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
         for handle, (rel_x, rel_y, _) in zip(self.resize_handles, handle_positions):
             handle.setPos(self.rect().width() * rel_x, self.rect().height() * rel_y)
 
@@ -104,7 +126,10 @@ class SubtitleBox(QGraphicsRectItem):
         if self.resizing:
             delta = event.scenePos() - self.drag_start_pos
             rect = self.original_rect
+<<<<<<< HEAD
 
+=======
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
             if "left" in self.resize_direction:
                 rect.setLeft(rect.left() + delta.x())
             if "right" in self.resize_direction:
@@ -113,6 +138,7 @@ class SubtitleBox(QGraphicsRectItem):
                 rect.setTop(rect.top() + delta.y())
             if "bottom" in self.resize_direction:
                 rect.setBottom(rect.bottom() + delta.y())
+<<<<<<< HEAD
 
             # Minimum size constraints
             if rect.width() < 50:
@@ -126,6 +152,12 @@ class SubtitleBox(QGraphicsRectItem):
                 else:
                     rect.setBottom(rect.top() + 30)
 
+=======
+            if rect.width() < 50:
+                rect.setLeft(rect.right() - 50) if "left" in self.resize_direction else rect.setRight(rect.left() + 50)
+            if rect.height() < 30:
+                rect.setTop(rect.bottom() - 30) if "top" in self.resize_direction else rect.setBottom(rect.top() + 30)
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
             self.setRect(rect)
             self.update_resize_handles()
         else:
@@ -139,6 +171,7 @@ class SubtitleBox(QGraphicsRectItem):
     def get_position(self) -> SubtitlePosition:
         pos = self.pos()
         rect = self.rect()
+<<<<<<< HEAD
         return SubtitlePosition(
             x=int(pos.x()),
             y=int(pos.y()),
@@ -147,6 +180,32 @@ class SubtitleBox(QGraphicsRectItem):
         )
 
 
+=======
+        return SubtitlePosition(x=int(pos.x()), y=int(pos.y()), width=int(rect.width()), height=int(rect.height()))
+
+
+class SubtitleTextItem(QGraphicsTextItem):
+    def __init__(self, word: Word, style: SubtitleStyle, parent=None):
+        super().__init__(word.text, parent)
+        self.word = word
+        self.style = style
+        self.is_highlighted = False
+        self.set_default_appearance()
+
+    def set_default_appearance(self):
+        font = QFont(self.style.font_family, self.style.font_size)
+        self.setFont(font)
+        self.setDefaultTextColor(QColor(self.style.text_color))
+        self.is_highlighted = False
+
+    def set_highlighted_appearance(self):
+        font = QFont(self.style.font_family, int(self.style.font_size * self.style.highlight_scale))
+        self.setFont(font)
+        self.setDefaultTextColor(QColor(self.style.highlight_color))
+        self.is_highlighted = True
+
+
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
 class VideoPreviewScene(QGraphicsScene):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -172,15 +231,20 @@ class VideoPreviewScene(QGraphicsScene):
     def create_subtitle_box(self, position: SubtitlePosition):
         if self.subtitle_box is not None:
             self.removeItem(self.subtitle_box)
+<<<<<<< HEAD
         self.subtitle_box = SubtitleBox(
             position.x, position.y, position.width, position.height
         )
+=======
+        self.subtitle_box = SubtitleBox(position.x, position.y, position.width, position.height)
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
         self.addItem(self.subtitle_box)
         self.subtitle_box.setZValue(10)
 
     def update_subtitles(self):
         if self.project is None:
             return
+<<<<<<< HEAD
 
         # Clear existing subtitle items
         for item in self.subtitle_items:
@@ -237,6 +301,36 @@ class VideoPreviewScene(QGraphicsScene):
                 x_offset += word_width + 10
 
             # New line
+=======
+        for item in self.subtitle_items:
+            self.removeItem(item)
+        self.subtitle_items = []
+        if self.subtitle_box is None:
+            self.create_subtitle_box(self.project.position)
+        else:
+            self.subtitle_box.setRect(0, 0, self.project.position.width, self.project.position.height)
+            self.subtitle_box.setPos(self.project.position.x, self.project.position.y)
+            self.subtitle_box.update_resize_handles()
+        style = self.project.style
+        x_offset = 20
+        y_offset = 20 + style.font_size
+        for line in self.project.subtitles:
+            for word in line.words:
+                is_active = self.current_time >= word.start_time and self.current_time < word.end_time
+                text_item = SubtitleTextItem(word, style)
+                if is_active:
+                    text_item.set_highlighted_appearance()
+                else:
+                    text_item.set_default_appearance()
+                text_item.setPos(self.subtitle_box.pos().x() + x_offset, self.subtitle_box.pos().y() + y_offset)
+                self.addItem(text_item)
+                text_item.setZValue(20)
+                self.subtitle_items.append(text_item)
+                font = text_item.font()
+                font_metrics = QFontMetrics(font)
+                word_width = font_metrics.horizontalAdvance(word.text)
+                x_offset += word_width + 10
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
             x_offset = 20
             y_offset += style.font_size * 1.5
 
@@ -259,6 +353,7 @@ class VideoPreviewWidget(QWidget):
         self.project = None
         self.current_time = 0.0
         self.is_playing = False
+<<<<<<< HEAD
 
         # Setup layout
         self.layout = QVBoxLayout(self)
@@ -289,6 +384,21 @@ class VideoPreviewWidget(QWidget):
         self.update_timer = QTimer(self)
         self.update_timer.timeout.connect(self._update_frame)
 
+=======
+        self.layout = QVBoxLayout(self)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setSpacing(0)
+        self.graphics_view = QGraphicsView(self)
+        self.graphics_view.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
+        self.graphics_view.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+        self.graphics_view.setSizePolicy(QWidget.SizePolicy.Expanding, QWidget.SizePolicy.Expanding)
+        self.scene = VideoPreviewScene(self)
+        self.graphics_view.setScene(self.scene)
+        self.layout.addWidget(self.graphics_view)
+        self.scene.position_changed_callback = self._on_position_changed
+        self.update_timer = QTimer(self)
+        self.update_timer.timeout.connect(self._update_frame)
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
         self.setMinimumSize(400, 300)
 
     def set_project(self, project: VideoProject):
@@ -298,9 +408,13 @@ class VideoPreviewWidget(QWidget):
 
     def set_video_frame(self, pixmap: QPixmap):
         self.scene.set_video_pixmap(pixmap)
+<<<<<<< HEAD
         self.graphics_view.fitInView(
             self.scene.itemsBoundingRect(), Qt.AspectRatioMode.KeepAspectRatio
         )
+=======
+        self.graphics_view.fitInView(self.scene.itemsBoundingRect(), Qt.AspectRatioMode.KeepAspectRatio)
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
 
     def update_time(self, time: float):
         self.current_time = time
@@ -309,7 +423,11 @@ class VideoPreviewWidget(QWidget):
     def set_playing(self, playing: bool):
         self.is_playing = playing
         if playing:
+<<<<<<< HEAD
             self.update_timer.start(33)  # ~30fps
+=======
+            self.update_timer.start(33)
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
         else:
             self.update_timer.stop()
 
@@ -329,6 +447,7 @@ class VideoPreviewWidget(QWidget):
 
     def resizeEvent(self, event):
         if self.scene.video_item:
+<<<<<<< HEAD
             self.graphics_view.fitInView(
                 self.scene.itemsBoundingRect(), Qt.AspectRatioMode.KeepAspectRatio
             )
@@ -336,3 +455,10 @@ class VideoPreviewWidget(QWidget):
 
     def sizeHint(self):
         return QSize(800, 600)
+=======
+            self.graphics_view.fitInView(self.scene.itemsBoundingRect(), Qt.AspectRatioMode.KeepAspectRatio)
+        super().resizeEvent(event)
+
+    def sizeHint(self):
+        return QSize(800, 600)
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d

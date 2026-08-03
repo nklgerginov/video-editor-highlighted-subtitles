@@ -1,6 +1,7 @@
 import os
 import sys
 from typing import Optional
+<<<<<<< HEAD
 from PyQt6.QtWidgets import (
     QMainWindow,
     QWidget,
@@ -18,26 +19,44 @@ from PyQt6.QtWidgets import (
     QColorDialog,
     QApplication,
 )
+=======
+from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QComboBox, QSpinBox, QDoubleSpinBox, QGroupBox, QFormLayout, QMessageBox, QFileDialog, QColorDialog, QApplication)
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
 from PyQt6.QtGui import QPixmap, QImage, QFontDatabase, QFont, QColor
 from PyQt6.QtCore import Qt, QTimer, QSize, pyqtSignal, QThread
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PyQt6.QtMultimediaWidgets import QVideoWidget
+from models import VideoProject, SubtitleStyle, SubtitlePosition
+from processing import SubtitleGenerator
+from export import VideoExporter
+from .preview import VideoPreviewWidget
 
 from models import VideoProject, SubtitleStyle, SubtitlePosition
 from processing import SubtitleGenerator
 from export import VideoExporter
 from .preview import VideoPreviewWidget
 
+<<<<<<< HEAD
 
 class ProcessingThread(QThread):
     processing_complete = pyqtSignal(VideoProject)
     error_occurred = pyqtSignal(str)
 
+=======
+class ProcessingThread(QThread):
+    processing_complete = pyqtSignal(VideoProject)
+    error_occurred = pyqtSignal(str)
+    
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
     def __init__(self, video_path: str, vosk_model_path: str):
         super().__init__()
         self.video_path = video_path
         self.vosk_model_path = vosk_model_path
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
     def run(self):
         try:
             generator = SubtitleGenerator(self.vosk_model_path)
@@ -50,12 +69,20 @@ class ProcessingThread(QThread):
 class ExportThread(QThread):
     export_complete = pyqtSignal(str)
     error_occurred = pyqtSignal(str)
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
     def __init__(self, project: VideoProject, output_path: str):
         super().__init__()
         self.project = project
         self.output_path = output_path
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
     def run(self):
         try:
             exporter = VideoExporter(self.project)
@@ -86,6 +113,7 @@ class MainWindow(QMainWindow):
         main_layout = QHBoxLayout(main_widget)
         main_layout.setContentsMargins(10, 10, 10, 10)
         main_layout.setSpacing(10)
+<<<<<<< HEAD
 
         # Left panel - Preview
         left_panel = QVBoxLayout()
@@ -95,6 +123,13 @@ class MainWindow(QMainWindow):
         self.preview_widget.setMinimumSize(800, 450)
         left_panel.addWidget(self.preview_widget, stretch=1)
 
+=======
+        left_panel = QVBoxLayout()
+        left_panel.setSpacing(10)
+        self.preview_widget = VideoPreviewWidget()
+        self.preview_widget.setMinimumSize(800, 450)
+        left_panel.addWidget(self.preview_widget, stretch=1)
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
         controls_group = QGroupBox("Video Controls")
         controls_layout = QHBoxLayout()
         self.play_button = QPushButton("Play")
@@ -108,12 +143,17 @@ class MainWindow(QMainWindow):
         controls_layout.addWidget(self.time_label)
         controls_group.setLayout(controls_layout)
         left_panel.addWidget(controls_group)
+<<<<<<< HEAD
 
         # Right panel - Settings
         right_panel = QVBoxLayout()
         right_panel.setSpacing(10)
 
         # Vosk Model
+=======
+        right_panel = QVBoxLayout()
+        right_panel.setSpacing(10)
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
         vosk_group = QGroupBox("Vosk Model")
         vosk_layout = QVBoxLayout()
         self.model_combo = QComboBox()
@@ -124,6 +164,7 @@ class MainWindow(QMainWindow):
         vosk_layout.addWidget(self.model_combo)
         vosk_group.setLayout(vosk_layout)
         right_panel.addWidget(vosk_group)
+<<<<<<< HEAD
 
         self.process_button = QPushButton("Generate Subtitles")
         self.process_button.setEnabled(False)
@@ -134,6 +175,14 @@ class MainWindow(QMainWindow):
         right_panel.addWidget(self.processing_label)
 
         # Style
+=======
+        self.process_button = QPushButton("Generate Subtitles")
+        self.process_button.setEnabled(False)
+        right_panel.addWidget(self.process_button)
+        self.processing_label = QLabel("Processing...")
+        self.processing_label.setVisible(False)
+        right_panel.addWidget(self.processing_label)
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
         style_group = QGroupBox("Subtitle Style")
         style_layout = QFormLayout()
         self.font_combo = QComboBox()
@@ -158,6 +207,7 @@ class MainWindow(QMainWindow):
         style_layout.addRow("Highlight Color:", self.highlight_color_button)
         style_group.setLayout(style_layout)
         right_panel.addWidget(style_group)
+<<<<<<< HEAD
 
         # Position
         position_group = QGroupBox("Subtitle Position (Drag & Drop)")
@@ -165,11 +215,19 @@ class MainWindow(QMainWindow):
         position_layout.addWidget(
             QLabel("Drag the subtitle box in the preview to position it")
         )
+=======
+        position_group = QGroupBox("Subtitle Position (Drag & Drop)")
+        position_layout = QVBoxLayout()
+        position_layout.addWidget(QLabel("Drag the subtitle box in the preview to position it"))
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
         self.save_position_button = QPushButton("Save Current Position")
         position_layout.addWidget(self.save_position_button)
         self.position_label = QLabel("Position: 50px, 50px")
         position_layout.addWidget(self.position_label)
+<<<<<<< HEAD
 
+=======
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
         position_form = QFormLayout()
         self.x_spin = QSpinBox()
         self.x_spin.setRange(0, 2000)
@@ -190,8 +248,11 @@ class MainWindow(QMainWindow):
         position_layout.addLayout(position_form)
         position_group.setLayout(position_layout)
         right_panel.addWidget(position_group)
+<<<<<<< HEAD
 
         # Export
+=======
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
         export_group = QGroupBox("Export")
         export_layout = QVBoxLayout()
         self.export_button = QPushButton("Export Video with Subtitles")
@@ -203,7 +264,10 @@ class MainWindow(QMainWindow):
         export_group.setLayout(export_layout)
         right_panel.addWidget(export_group)
         right_panel.addStretch()
+<<<<<<< HEAD
 
+=======
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
         main_layout.addLayout(left_panel, stretch=2)
         main_layout.addLayout(right_panel, stretch=1)
 
@@ -248,10 +312,14 @@ class MainWindow(QMainWindow):
         self.font_combo.addItems(QFontDatabase().families())
 
     def _update_color_button(self, button, color):
+<<<<<<< HEAD
         button.setStyleSheet(
             f"background-color: {color.name()}; "
             f"color: {'black' if color.lightness() > 128 else 'white'};"
         )
+=======
+        button.setStyleSheet(f"background-color: {color.name()}; color: {'black' if color.lightness() > 128 else 'white'};")
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
 
     def _update_style(self):
         if not self.project:
@@ -261,7 +329,11 @@ class MainWindow(QMainWindow):
             font_size=self.font_size_spin.value(),
             highlight_scale=self.highlight_scale_spin.value(),
             text_color=self.text_color.name(),
+<<<<<<< HEAD
             highlight_color=self.highlight_color.name(),
+=======
+            highlight_color=self.highlight_color.name()
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
         )
         if self.preview_widget.project:
             self.preview_widget.set_project(self.project)
@@ -274,9 +346,13 @@ class MainWindow(QMainWindow):
             self._update_style()
 
     def _choose_highlight_color(self):
+<<<<<<< HEAD
         color = QColorDialog.getColor(
             self.highlight_color, self, "Choose Highlight Color"
         )
+=======
+        color = QColorDialog.getColor(self.highlight_color, self, "Choose Highlight Color")
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
         if color.isValid():
             self.highlight_color = color
             self._update_color_button(self.highlight_color_button, color)
@@ -292,6 +368,7 @@ class MainWindow(QMainWindow):
     def _update_position_from_spins(self):
         if not self.project:
             return
+<<<<<<< HEAD
         position = SubtitlePosition(
             x=self.x_spin.value(),
             y=self.y_spin.value(),
@@ -303,6 +380,12 @@ class MainWindow(QMainWindow):
             self.preview_widget.scene.subtitle_box.setRect(
                 0, 0, position.width, position.height
             )
+=======
+        position = SubtitlePosition(x=self.x_spin.value(), y=self.y_spin.value(), width=self.width_spin.value(), height=self.height_spin.value())
+        self.project.position = position
+        if self.preview_widget.scene.subtitle_box:
+            self.preview_widget.scene.subtitle_box.setRect(0, 0, position.width, position.height)
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
             self.preview_widget.scene.subtitle_box.setPos(position.x, position.y)
             self.preview_widget.scene.subtitle_box.update_resize_handles()
         self.position_label.setText(f"Position: {position.x}px, {position.y}px")
@@ -344,9 +427,13 @@ class MainWindow(QMainWindow):
         self.preview_widget.set_playing(False)
 
     def _load_video(self):
+<<<<<<< HEAD
         file_path, _ = QFileDialog.getOpenFileName(
             self, "Open Video File", "", "Video Files (*.mp4 *.avi *.mov *.mkv)"
         )
+=======
+        file_path, _ = QFileDialog.getOpenFileName(self, "Open Video File", "", "Video Files (*.mp4 *.avi *.mov *.mkv)")
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
         if file_path:
             self.current_video_path = file_path
             self.project.video_path = file_path
@@ -357,11 +444,15 @@ class MainWindow(QMainWindow):
     def _load_first_frame(self):
         try:
             from moviepy import VideoFileClip
+<<<<<<< HEAD
 
+=======
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
             video = VideoFileClip(self.current_video_path)
             first_frame = video.get_frame(0)
             height, width, _ = first_frame.shape
             bytes_per_line = 3 * width
+<<<<<<< HEAD
             q_image = QImage(
                 first_frame.data,
                 width,
@@ -369,6 +460,9 @@ class MainWindow(QMainWindow):
                 bytes_per_line,
                 QImage.Format.Format_RGB888,
             )
+=======
+            q_image = QImage(first_frame.data, width, height, bytes_per_line, QImage.Format.Format_RGB888)
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
             pixmap = QPixmap.fromImage(q_image)
             self.preview_widget.set_video_frame(pixmap)
             video.close()
@@ -378,6 +472,7 @@ class MainWindow(QMainWindow):
     def _generate_subtitles(self):
         vosk_model_path = self.model_combo.currentText()
         if not os.path.exists(vosk_model_path):
+<<<<<<< HEAD
             common_paths = [
                 os.path.join(os.path.expanduser("~"), "vosk-models", vosk_model_path),
                 os.path.join("models", vosk_model_path),
@@ -401,6 +496,20 @@ class MainWindow(QMainWindow):
         self.processing_thread = ProcessingThread(
             self.current_video_path, vosk_model_path
         )
+=======
+            common_paths = [os.path.join(os.path.expanduser("~"), "vosk-models", vosk_model_path), os.path.join("models", vosk_model_path)]
+            for path in common_paths:
+                if os.path.exists(path):
+                    vosk_model_path = path
+                    break
+            else:
+                QMessageBox.warning(self, "Model Not Found", f"Vosk model not found. Download from:
+https://alphacephei.com/vosk/models")
+                return
+        self.processing_label.setVisible(True)
+        self.process_button.setEnabled(False)
+        self.processing_thread = ProcessingThread(self.current_video_path, vosk_model_path)
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
         self.processing_thread.processing_complete.connect(self._on_processing_complete)
         self.processing_thread.error_occurred.connect(self._on_processing_error)
         self.processing_thread.start()
@@ -422,6 +531,7 @@ class MainWindow(QMainWindow):
 
     def _export_video(self):
         if not self.project:
+<<<<<<< HEAD
             QMessageBox.warning(
                 self, "Error", "No project to export. Generate subtitles first."
             )
@@ -435,6 +545,15 @@ class MainWindow(QMainWindow):
         if not output_path.lower().endswith(".mp4"):
             output_path += ".mp4"
 
+=======
+            QMessageBox.warning(self, "Error", "No project to export. Generate subtitles first.")
+            return
+        output_path, _ = QFileDialog.getSaveFileName(self, "Save Video", "", "MP4 Files (*.mp4);;All Files (*)")
+        if not output_path:
+            return
+        if not output_path.lower().endswith('.mp4'):
+            output_path += '.mp4'
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
         self.export_label.setVisible(True)
         self.export_button.setEnabled(False)
         self.export_thread = ExportThread(self.project, output_path)
@@ -445,9 +564,14 @@ class MainWindow(QMainWindow):
     def _on_export_complete(self, output_path: str):
         self.export_label.setVisible(False)
         self.export_button.setEnabled(True)
+<<<<<<< HEAD
         QMessageBox.information(
             self, "Success", f"Video exported successfully to:\n{output_path}"
         )
+=======
+        QMessageBox.information(self, "Success", f"Video exported successfully to:
+{output_path}")
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
 
     def _on_export_error(self, error: str):
         self.export_label.setVisible(False)
@@ -467,5 +591,10 @@ def main():
     sys.exit(app.exec())
 
 
+<<<<<<< HEAD
 if __name__ == "____main__":
     main()
+=======
+if __name__ == "__main__":
+    main()
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d

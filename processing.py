@@ -1,5 +1,8 @@
 """Video processing module for subtitle generation using Vosk."""
+<<<<<<< HEAD
 
+=======
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
 import os
 import json
 import tempfile
@@ -12,11 +15,19 @@ class SubtitleGenerator:
     def __init__(self, vosk_model_path: str):
         self.vosk_model_path = vosk_model_path
         self._validate_vosk_model()
+<<<<<<< HEAD
 
     def _validate_vosk_model(self):
         if not os.path.exists(self.vosk_model_path):
             raise FileNotFoundError(f"Vosk model not found at: {self.vosk_model_path}")
 
+=======
+    
+    def _validate_vosk_model(self):
+        if not os.path.exists(self.vosk_model_path):
+            raise FileNotFoundError(f"Vosk model not found at: {self.vosk_model_path}")
+    
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
     def extract_audio(self, video_path: str, output_audio_path: str = None) -> str:
         if output_audio_path is None:
             output_audio_path = tempfile.mktemp(suffix=".wav")
@@ -26,12 +37,18 @@ class SubtitleGenerator:
         audio.close()
         video.close()
         return output_audio_path
+<<<<<<< HEAD
 
     def generate_subtitles(
         self, audio_path: str, video_duration: float = None
     ) -> Tuple[List[SubtitleLine], float]:
         import vosk
 
+=======
+    
+    def generate_subtitles(self, audio_path: str, video_duration: float = None) -> Tuple[List[SubtitleLine], float]:
+        import vosk
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
         model = vosk.Model(self.vosk_model_path)
         with open(audio_path, "rb") as f:
             audio_data = f.read()
@@ -40,11 +57,16 @@ class SubtitleGenerator:
         chunk_size = 4000
         all_words = []
         for i in range(0, len(audio_data), chunk_size):
+<<<<<<< HEAD
             chunk = audio_data[i : i + chunk_size]
+=======
+            chunk = audio_data[i:i + chunk_size]
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
             if rec.AcceptWaveform(chunk):
                 result = json.loads(rec.Result())
                 if "result" in result:
                     for word_info in result["result"]:
+<<<<<<< HEAD
                         all_words.append(
                             Word(
                                 text=word_info["word"],
@@ -62,10 +84,18 @@ class SubtitleGenerator:
                         end_time=float(word_info["end"]),
                     )
                 )
+=======
+                        all_words.append(Word(text=word_info["word"], start_time=float(word_info["start"]), end_time=float(word_info["end"])))
+        final_result = json.loads(rec.FinalResult())
+        if "result" in final_result:
+            for word_info in final_result["result"]:
+                all_words.append(Word(text=word_info["word"], start_time=float(word_info["start"]), end_time=float(word_info["end"])))
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
         if video_duration is None and all_words:
             video_duration = max(w.end_time for w in all_words)
         elif video_duration is None:
             video_duration = 0.0
+<<<<<<< HEAD
 
         subtitle_lines = []
         current_line = SubtitleLine()
@@ -73,10 +103,19 @@ class SubtitleGenerator:
             if i == 0 or (word.start_time - all_words[i - 1].end_time) > 2.0:
                 if current_line.words:
                     current_line.end_time = all_words[i - 1].end_time
+=======
+        subtitle_lines = []
+        current_line = SubtitleLine()
+        for i, word in enumerate(all_words):
+            if i == 0 or (word.start_time - all_words[i-1].end_time) > 2.0:
+                if current_line.words:
+                    current_line.end_time = all_words[i-1].end_time
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
                     subtitle_lines.append(current_line)
                 current_line = SubtitleLine()
                 current_line.start_time = word.start_time
             current_line.add_word(word)
+<<<<<<< HEAD
 
         if current_line.words:
             current_line.end_time = all_words[-1].end_time
@@ -88,6 +127,16 @@ class SubtitleGenerator:
 
         return subtitle_lines, video_duration
 
+=======
+        if current_line.words:
+            current_line.end_time = all_words[-1].end_time
+            subtitle_lines.append(current_line)
+        for line in subtitle_lines:
+            if line.end_time > video_duration:
+                line.end_time = video_duration
+        return subtitle_lines, video_duration
+    
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
     def process_video(self, video_path: str, vosk_model_path: str) -> VideoProject:
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_audio:
             audio_path = tmp_audio.name
@@ -97,6 +146,7 @@ class SubtitleGenerator:
             video.close()
             self.extract_audio(video_path, audio_path)
             subtitle_lines, _ = self.generate_subtitles(audio_path, duration)
+<<<<<<< HEAD
             return VideoProject(
                 video_path=video_path,
                 vosk_model_path=vosk_model_path,
@@ -105,3 +155,9 @@ class SubtitleGenerator:
         finally:
             if os.path.exists(audio_path):
                 os.unlink(audio_path)
+=======
+            return VideoProject(video_path=video_path, vosk_model_path=vosk_model_path, subtitles=subtitle_lines)
+        finally:
+            if os.path.exists(audio_path):
+                os.unlink(audio_path)
+>>>>>>> a71566016695e21c407a34efabef2157bae5f31d
