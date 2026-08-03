@@ -129,10 +129,10 @@ class MainWindow(QMainWindow):
         style_layout.addRow("Highlight Color:", self.highlight_color_button)
         style_group.setLayout(style_layout)
         right_panel.addWidget(style_group)
-        position_group = QGroupBox("Subtitle Position (Drag & Drop)")
+        position_group = QGroupBox("Subtitle Position")
         position_layout = QVBoxLayout()
         position_layout.addWidget(QLabel("Drag the subtitle box in the preview to position it"))
-        self.save_position_button = QPushButton("Save Current Position")
+        self.save_position_button = QPushButton("Save Position")
         position_layout.addWidget(self.save_position_button)
         self.position_label = QLabel("Position: 50px, 50px")
         position_layout.addWidget(self.position_label)
@@ -140,11 +140,11 @@ class MainWindow(QMainWindow):
         self.x_spin = QSpinBox()
         self.x_spin.setRange(0, 2000)
         self.x_spin.setValue(50)
-        position_form.addRow("X Position (px):", self.x_spin)
+        position_form.addRow("X (px):", self.x_spin)
         self.y_spin = QSpinBox()
         self.y_spin.setRange(0, 2000)
         self.y_spin.setValue(50)
-        position_form.addRow("Y Position (px):", self.y_spin)
+        position_form.addRow("Y (px):", self.y_spin)
         self.width_spin = QSpinBox()
         self.width_spin.setRange(100, 2000)
         self.width_spin.setValue(800)
@@ -158,7 +158,7 @@ class MainWindow(QMainWindow):
         right_panel.addWidget(position_group)
         export_group = QGroupBox("Export")
         export_layout = QVBoxLayout()
-        self.export_button = QPushButton("Export Video with Subtitles")
+        self.export_button = QPushButton("Export Video")
         self.export_button.setEnabled(False)
         export_layout.addWidget(self.export_button)
         self.export_label = QLabel("Exporting...")
@@ -201,7 +201,7 @@ class MainWindow(QMainWindow):
         families = font_db.families()
         self.font_combo.clear()
         self.font_combo.addItems(families)
-        for font in ["Arial", "Helvetica", "Times New Roman", "Courier New"]:
+        for font in ["Arial", "Helvetica"]:
             if font in families:
                 self.font_combo.setCurrentText(font)
                 break
@@ -273,18 +273,14 @@ class MainWindow(QMainWindow):
         self.preview_widget.update_time(seconds)
         self.current_time = seconds
 
-    def _update_playback(self):
-        if self.media_player.duration() > 0:
-            self.media_player.setPosition(self.media_player.position() + 33)
-
     def _play_video(self):
-        if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
-            return
         if not self.current_video_path:
             self._load_video()
-        if self.current_video_path:
-            self.media_player.play()
-            self.preview_widget.set_playing(True)
+            return
+        if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
+            return
+        self.media_player.play()
+        self.preview_widget.set_playing(True)
 
     def _pause_video(self):
         self.media_player.pause()
@@ -295,40 +291,18 @@ class MainWindow(QMainWindow):
         self.preview_widget.set_playing(False)
 
     def _load_video(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Open Video File", "", "Video Files (*.mp4 *.avi *.mov *.mkv)")
+        file_path, _ = QFileDialog.getOpenFileName(self, "Open Video", "", "Video Files (*.mp4 *.avi *.mov)")
         if file_path:
             self.current_video_path = file_path
             self.project.video_path = file_path
             self.media_player.setSource(file_path)
             self.process_button.setEnabled(True)
-            self._load_first_frame()
-
-    def _load_first_frame(self):
-        try:
-            from moviepy import VideoFileClip
-            video = VideoFileClip(self.current_video_path)
-            first_frame = video.get_frame(0)
-            height, width, _ = first_frame.shape
-            bytes_per_line = 3 * width
-            q_image = QImage(first_frame.data, width, height, bytes_per_line, QImage.Format.Format_RGB888)
-            pixmap = QPixmap.fromImage(q_image)
-            self.preview_widget.set_video_frame(pixmap)
-            video.close()
-        except Exception as e:
-            QMessageBox.warning(self, "Error", f"Failed to load first frame: {str(e)}")
 
     def _generate_subtitles(self):
         vosk_model_path = self.model_combo.currentText()
         if not os.path.exists(vosk_model_path):
-            common_paths = [os.path.join(os.path.expanduser("~"), "vosk-models", vosk_model_path), os.path.join("models", vosk_model_path)]
-            for path in common_paths:
-                if os.path.exists(path):
-                    vosk_model_path = path
-                    break
-            else:
-                QMessageBox.warning(self, "Model Not Found", f"Vosk model not found. Download from:
-https://alphacephei.com/vosk/models")
-                return
+            QMessageBox.warning(self, "Model Not Found", "Download Vosk model from alphacephei.com/vosk/models")
+            return
         self.processing_label.setVisible(True)
         self.process_button.setEnabled(False)
         self.processing_thread = ProcessingThread(self.current_video_path, vosk_model_path)
@@ -344,22 +318,16 @@ https://alphacephei.com/vosk/models")
         self._update_style()
         self.preview_widget.set_project(self.project)
         self._update_position_spins(self.project.position)
-        QMessageBox.information(self, "Success", "Subtitles generated successfully!")
 
     def _on_processing_error(self, error: str):
         self.processing_label.setVisible(False)
         self.process_button.setEnabled(True)
-        QMessageBox.critical(self, "Error", f"Processing failed: {error}")
+        QMessageBox.critical(self, "Error", f"Failed: {error}")
 
     def _export_video(self):
-        if not self.project:
-            QMessageBox.warning(self, "Error", "No project to export. Generate subtitles first.")
-            return
-        output_path, _ = QFileDialog.getSaveFileName(self, "Save Video", "", "MP4 Files (*.mp4);;All Files (*)")
+        output_path, _ = QFileDialog.getSaveFileName(self, "Save", "", "MP4 (*.mp4)")
         if not output_path:
             return
-        if not output_path.lower().endswith('.mp4'):
-            output_path += '.mp4'
         self.export_label.setVisible(True)
         self.export_button.setEnabled(False)
         self.export_thread = ExportThread(self.project, output_path)
@@ -370,13 +338,12 @@ https://alphacephei.com/vosk/models")
     def _on_export_complete(self, output_path: str):
         self.export_label.setVisible(False)
         self.export_button.setEnabled(True)
-        QMessageBox.information(self, "Success", f"Video exported successfully to:
-{output_path}")
+        QMessageBox.information(self, "Success", f"Exported to {output_path}")
 
     def _on_export_error(self, error: str):
         self.export_label.setVisible(False)
         self.export_button.setEnabled(True)
-        QMessageBox.critical(self, "Error", f"Export failed: {error}")
+        QMessageBox.critical(self, "Error", f"Failed: {error}")
 
     def closeEvent(self, event):
         self._stop_video()
