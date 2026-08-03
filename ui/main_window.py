@@ -90,7 +90,8 @@ class MainWindow(QMainWindow):
         self._setup_media_player()
 
     def _setup_dark_theme(self):
-        dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
+        dark_palette = QPalette()
+        dark_palette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
         dark_palette.setColor(QPalette.ColorRole.WindowText, Qt.GlobalColor.white)
         dark_palette.setColor(QPalette.ColorRole.Base, QColor(25, 25, 25))
         dark_palette.setColor(QPalette.ColorRole.AlternateBase, QColor(53, 53, 53))
@@ -103,8 +104,8 @@ class MainWindow(QMainWindow):
         dark_palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.black)
-        dark_pal
-ette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
+        dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
+
         dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.ButtonText, QColor(127, 127, 127))
         QApplication.setPalette(dark_palette)
         QApplication.setStyle("Fusion")
@@ -447,7 +448,8 @@ ial", "Helvetica", "Roboto", "Segoe UI"]:
         if fp:
             self.current_video_path = fp
             self.project.video_path = fp
-            self.media_player.setSource(QUrl.fromLocalFile(fp))
+            self.
+media_player.setSource(QUrl.fromLocalFile(fp))
             self.process_button.setEnabled(True)
             self.export_button.setEnabled(False)
             self._update_time(0)
