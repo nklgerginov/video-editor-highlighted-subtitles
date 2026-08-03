@@ -63,6 +63,7 @@ class VideoFrameGrabber(QObject):
 
 
 
+
         super().__init__()
         self.video_widget = video_widget
         self.timer = QTimer(self)
@@ -111,6 +112,7 @@ class MainWindow(QMainWindow):
         dark_palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.black)
 
 
+
         dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
 
         dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.ButtonText, QColor(127, 127, 127))
@@ -149,6 +151,7 @@ class MainWindow(QMainWindow):
         self.play_button.setStyleSheet("QPushButton { background-color: #2ecc71; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #37d477; }")
         self.pause_button = QPushButton("Pause")
         self.pause_button.setStyleSheet("QPushButton { background-color: #f39c12; color: white; padding: 8px 16px; border-radius: 4px; } QPushButton:hover { background-color: #f5ab35; 
+
 }"
 )
 
@@ -193,7 +196,8 @@ class MainWindow(QMainWindow):
         # Process Button
         self.process_button = QPushButton("Generate Subtitles")
         self.process_button.setStyleSheet("QPushButton { background-color: #9b59b6; color: white; padding: 10px; border-radius: 4px; font-size: 14px; } QPushButton:hover { background-color: #a569bd; } QPushButton:disabled { background-color: #
-7f8
+7f
+8
 c8d
 ; }
 ")
@@ -234,7 +238,8 @@ c8d
         self.text_color_button.setStyleSheet("QPushButton { background-color: #34495e; color: #ecf0f1; padding: 6px; border-radius: 4px; border: 1px solid #2c3e50; }")
         self.text_color = QColor(255, 255, 255)
         self._update_cself._update_co
-lor_
+l
+or_
 butt
 on(s
 elf.text_color_button, self.text_color)
@@ -279,6 +284,7 @@ elf.text_color_button, self.text_color)
             spin.setStyleSheet("QSpinBox { background-color: #34495e; color: #ecf0f1; border: 1px solid #2c3e50; padding: 4px; border-radius: 4px; }")
         
         self.x
+
 _spin
 .setR
 ange(
@@ -332,6 +338,7 @@ elf.x_spin.setValue(50)
             for item in os.listdir(models_dir):
                 if os.path.isdir(os.path.join(models_dir, item)):
 
+
       
   self.model_combo.
 adaddItem(os.path.join("models", item))
@@ -375,7 +382,8 @@ adaddItem(os.path.join("models", item))
         self.font_combo.clear()
        
  self.f
-ont_com
+ont_
+com
 bo.addIt
 ems(families)
       
@@ -427,7 +435,8 @@ for f in ["Arial", "Helvetica", "Roboto", "Segoe UI"]:
             return
         pos = SubtitlePosition(self.x_spin.value(), self.y_sp
 in.value
-(), self.width_spin.v
+()
+, self.width_spin.v
 alue(), s
 elf.height_spin.value
 ())
@@ -485,6 +494,7 @@ elf.height_spin.value
         if fp:
             self.cu
 rrent_vid
+
 eo_path = fp
          
    self.pr
@@ -538,7 +548,8 @@ oject.video_path = fp
         self._update_style()
         self.preview_widget.set_project(self.project)
         s
-elf._updat
+elf._upda
+t
 e_pos_spins(self.projec
 t.position)
 
