@@ -190,7 +190,7 @@ f.process_button.setEnabled(False)
         self.text_color_button = QPushButton("Choose Text Color")
         self.text_color_button.setStyleSheet("QPushButton { background-color: #34495e; color: #ecf0f1; padding: 6px; border-radius: 4px; border: 1px solid #2c3e50; }")
         self.text_color = QColor(255, 255, 255)
-        self._update_color_button(self.text_color_button, self.text_color
+        self._update_color_button(self.text_color_button, self.te
 xt_color)
         style_layout.addRow("Text Color:", self.text_color_button)
         
@@ -230,8 +230,7 @@ xt_color)
             spin.setStyleSheet("QSpinBox { background-color: #34495e; color: #ecf0f1; border: 1px solid #2c3e50; padding: 4px; border-radius: 4px; }")
         
         self.x_spin.setRange(0, 2000)
-        self.x_spin.se
-tValue(50)
+        self.x_spin.setValue(50)
         position_form.addRow("X (px):", self.x_spin)
         
         self.y_spin.setRange(0, 2000)
