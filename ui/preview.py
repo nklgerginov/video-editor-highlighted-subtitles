@@ -1,7 +1,7 @@
 from typing import Optional, List
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QGraphicsTextItem, QGraphicsRectItem, QGraphicsItem
-from PyQt6.QtGui import QPixmap, QPainter, QPen, QBrush, QColor, QFont, QFontMetrics, QMouseEvent
-from PyQt6.QtCore import Qt, QPoint, QRect, QSize, QTimer, pyqtSignal
+from PyQt6.QtGui import QPixmap, QPainter, QPen, QBrush, QColor, QFont, QFontMetrics
+from PyQt6.QtCore import Qt, QSize, QTimer, pyqtSignal
 from models import VideoProject, Word, SubtitleLine, SubtitleStyle, SubtitlePosition
 
 
@@ -23,30 +23,30 @@ class SubtitleBox(QGraphicsRectItem):
         self.original_rect = None
 
     def _create_resize_handles(self):
-        handle_positions = [(0, 0, "top-left"), (1, 0, "top-right"), (0, 1, "bottom-left"), (1, 1, "bottom-right"), (0.5, 0, "top"), (1, 0.5, "right"), (0.5, 1, "bottom"), (0, 0.5, "left")]
-        for rel_x, rel_y, direction in handle_positions:
-            handle = QGraphicsRectItem(-self.resize_handle_size/2, -self.resize_handle_size/2, self.resize_handle_size, self.resize_handle_size, self)
-            handle.setPos(self.rect().width() * rel_x, self.rect().height() * rel_y)
+        handle_positions = [(0, 0, "tl"), (1, 0, "tr"), (0, 1, "bl"), (1, 1, "br"), (0.5, 0, "t"), (1, 0.5, "r"), (0.5, 1, "b"), (0, 0.5, "l")]
+        for rx, ry, dirn in handle_positions:
+            handle = QGraphicsRectItem(-5, -5, 10, 10, self)
+            handle.setPos(self.rect().width() * rx, self.rect().height() * ry)
             handle.setBrush(QBrush(QColor(255, 255, 255, 200)))
-            handle.setPen(QPen(QColor(100, 100, 100, 200), 1))
+            handle.setPen(QPen(QColor(100, 100, 100), 1))
             handle.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, False)
             handle.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable, False)
             handle.setAcceptHoverEvents(True)
-            handle.setData(0, direction)
+            handle.setData(0, dirn)
             self.resize_handles.append(handle)
 
     def update_resize_handles(self):
-        handle_positions = [(0, 0, "top-left"), (1, 0, "top-right"), (0, 1, "bottom-left"), (1, 1, "bottom-right"), (0.5, 0, "top"), (1, 0.5, "right"), (0.5, 1, "bottom"), (0, 0.5, "left")]
-        for handle, (rel_x, rel_y, _) in zip(self.resize_handles, handle_positions):
-            handle.setPos(self.rect().width() * rel_x, self.rect().height() * rel_y)
+        handle_positions = [(0, 0, "tl"), (1, 0, "tr"), (0, 1, "bl"), (1, 1, "br"), (0.5, 0, "t"), (1, 0.5, "r"), (0.5, 1, "b"), (0, 0.5, "l")]
+        for handle, (rx, ry, _) in zip(self.resize_handles, handle_positions):
+            handle.setPos(self.rect().width() * rx, self.rect().height() * ry)
 
     def hoverEnterEvent(self, event):
         self.setPen(QPen(QColor(255, 255, 255, 200), 2, Qt.PenStyle.DashLine))
-        super().hoverEnterEvent(event)
+        return super().hoverEnterEvent(event)
 
     def hoverLeaveEvent(self, event):
         self.setPen(QPen(QColor(200, 200, 200, 200), 2, Qt.PenStyle.DashLine))
-        super().hoverLeaveEvent(event)
+        return super().hoverLeaveEvent(event)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
@@ -58,61 +58,45 @@ class SubtitleBox(QGraphicsRectItem):
                     self.original_rect = self.rect()
                     break
             else:
-                super().mousePressEvent(event)
-        else:
-            super().mousePressEvent(event)
+                return super().mousePressEvent(event)
+        return super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
         if self.resizing:
             delta = event.scenePos() - self.drag_start_pos
             rect = self.original_rect
-            if "left" in self.resize_direction:
+            if "l" in self.resize_direction:
                 rect.setLeft(rect.left() + delta.x())
-            if "right" in self.resize_direction:
+            if "r" in self.resize_direction:
                 rect.setRight(rect.right() + delta.x())
-            if "top" in self.resize_direction:
+            if "t" in self.resize_direction:
                 rect.setTop(rect.top() + delta.y())
-            if "bottom" in self.resize_direction:
+            if "b" in self.resize_direction:
                 rect.setBottom(rect.bottom() + delta.y())
             if rect.width() < 50:
-                rect.setLeft(rect.right() - 50) if "left" in self.resize_direction else rect.setRight(rect.left() + 50)
+                if "l" in self.resize_direction:
+                    rect.setLeft(rect.right() - 50)
+                else:
+                    rect.setRight(rect.left() + 50)
             if rect.height() < 30:
-                rect.setTop(rect.bottom() - 30) if "top" in self.resize_direction else rect.setBottom(rect.top() + 30)
+                if "t" in self.resize_direction:
+                    rect.setTop(rect.bottom() - 30)
+                else:
+                    rect.setBottom(rect.top() + 30)
             self.setRect(rect)
             self.update_resize_handles()
         else:
-            super().mouseMoveEvent(event)
+            return super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
         self.resizing = False
         self.resize_direction = None
-        super().mouseReleaseEvent(event)
+        return super().mouseReleaseEvent(event)
 
     def get_position(self) -> SubtitlePosition:
         pos = self.pos()
         rect = self.rect()
         return SubtitlePosition(x=int(pos.x()), y=int(pos.y()), width=int(rect.width()), height=int(rect.height()))
-
-
-class SubtitleTextItem(QGraphicsTextItem):
-    def __init__(self, word: Word, style: SubtitleStyle, parent=None):
-        super().__init__(word.text, parent)
-        self.word = word
-        self.style = style
-        self.is_highlighted = False
-        self.set_default_appearance()
-
-    def set_default_appearance(self):
-        font = QFont(self.style.font_family, self.style.font_size)
-        self.setFont(font)
-        self.setDefaultTextColor(QColor(self.style.text_color))
-        self.is_highlighted = False
-
-    def set_highlighted_appearance(self):
-        font = QFont(self.style.font_family, int(self.style.font_size * self.style.highlight_scale))
-        self.setFont(font)
-        self.setDefaultTextColor(QColor(self.style.highlight_color))
-        self.is_highlighted = True
 
 
 class VideoPreviewScene(QGraphicsScene):
@@ -157,26 +141,22 @@ class VideoPreviewScene(QGraphicsScene):
             self.subtitle_box.setPos(self.project.position.x, self.project.position.y)
             self.subtitle_box.update_resize_handles()
         style = self.project.style
-        x_offset = 20
-        y_offset = 20 + style.font_size
+        x_off, y_off = 20, 20 + style.font_size
         for line in self.project.subtitles:
             for word in line.words:
                 is_active = self.current_time >= word.start_time and self.current_time < word.end_time
-                text_item = SubtitleTextItem(word, style)
-                if is_active:
-                    text_item.set_highlighted_appearance()
-                else:
-                    text_item.set_default_appearance()
-                text_item.setPos(self.subtitle_box.pos().x() + x_offset, self.subtitle_box.pos().y() + y_offset)
-                self.addItem(text_item)
-                text_item.setZValue(20)
-                self.subtitle_items.append(text_item)
-                font = text_item.font()
-                font_metrics = QFontMetrics(font)
-                word_width = font_metrics.horizontalAdvance(word.text)
-                x_offset += word_width + 10
-            x_offset = 20
-            y_offset += style.font_size * 1.5
+                item = QGraphicsTextItem(word.text)
+                font = QFont(style.font_family, style.font_size * (style.highlight_scale if is_active else 1))
+                item.setFont(font)
+                item.setDefaultTextColor(QColor(style.highlight_color if is_active else style.text_color))
+                item.setPos(self.subtitle_box.pos().x() + x_off, self.subtitle_box.pos().y() + y_off)
+                self.addItem(item)
+                item.setZValue(20)
+                self.subtitle_items.append(item)
+                fm = QFontMetrics(font)
+                x_off += fm.horizontalAdvance(word.text) + 10
+            x_off = 20
+            y_off += style.font_size * 1.5
 
     def update_time(self, time: float):
         self.current_time = time
@@ -184,9 +164,8 @@ class VideoPreviewScene(QGraphicsScene):
 
     def mouseReleaseEvent(self, event):
         if self.subtitle_box and self.position_changed_callback:
-            position = self.subtitle_box.get_position()
-            self.position_changed_callback(position)
-        super().mouseReleaseEvent(event)
+            self.position_changed_callback(self.subtitle_box.get_position())
+        return super().mouseReleaseEvent(event)
 
 
 class VideoPreviewWidget(QWidget):
@@ -196,13 +175,10 @@ class VideoPreviewWidget(QWidget):
         super().__init__(parent)
         self.project = None
         self.current_time = 0.0
-        self.is_playing = False
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.setSpacing(0)
         self.graphics_view = QGraphicsView(self)
         self.graphics_view.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
-        self.graphics_view.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
         self.graphics_view.setSizePolicy(QWidget.SizePolicy.Expanding, QWidget.SizePolicy.Expanding)
         self.scene = VideoPreviewScene(self)
         self.graphics_view.setScene(self.scene)
@@ -226,7 +202,6 @@ class VideoPreviewWidget(QWidget):
         self.scene.update_time(time)
 
     def set_playing(self, playing: bool):
-        self.is_playing = playing
         if playing:
             self.update_timer.start(33)
         else:
@@ -241,15 +216,7 @@ class VideoPreviewWidget(QWidget):
             self.project.position = position
         self.position_changed.emit(position)
 
-    def get_current_position(self) -> SubtitlePosition:
-        if self.scene.subtitle_box:
-            return self.scene.subtitle_box.get_position()
-        return self.project.position if self.project else SubtitlePosition()
-
     def resizeEvent(self, event):
         if self.scene.video_item:
             self.graphics_view.fitInView(self.scene.itemsBoundingRect(), Qt.AspectRatioMode.KeepAspectRatio)
-        super().resizeEvent(event)
-
-    def sizeHint(self):
-        return QSize(800, 600)
+        return super().resizeEvent(event)
