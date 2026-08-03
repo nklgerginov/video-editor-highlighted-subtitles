@@ -56,7 +56,9 @@ class ExportThread(QThread):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Video Editor - Highlighted Subtitles")
+        self.setWindowTitle("Video Editor - Highlighted Subt
+itles"
+)
         self.setMinimumSize(1200, 800)
         self.project = VideoProject()
         self.current_video_path = ""
@@ -107,11 +109,11 @@ class MainWindow(QMainWindow):
         vosk_layout.addWidget(self.model_combo)
         vosk_group.setLayout(vosk_layout)
       
-  right_panel.addWidget(vosk_group)
+        right_panel.addWidget(vosk_group)
 
         self.process_button = QPushButton("Generate Subtitles")
  
-       self.process_button.setEnabled(False)
+        self.process_button.setEnabled(False)
         right_panel.addWidget(self.process_button)
 
         self.processing_label = QLabel("Processing...")
@@ -152,7 +154,7 @@ class MainWindow(QMainWindow):
 addWidget(self.save_position_button)
         self.position_label = QLabel("Position: 50px, 50px")
    
-     position_layout.addWidget(self.position_label)
+        position_layout.addWidget(self.position_label)
 
         position_form = QFormLayout()
         self.x_spin = QSpinBox()
@@ -200,7 +202,7 @@ addWidget(self.save_position_button)
 ect(self._update_style)
         self.highlight_scale_spin.valueChanged.connect(self._update_style)
  
-       self.text_color_button.clicked.connect(self._choose_text_color)
+        self.text_color_button.clicked.connect(self._choose_text_color)
         self.highlight_color_button.clicked.connect(self._choose_highlight_color)
         self.save_position_button.clicked.connect(self._save_pos)
         self.x_spin.valueChanged.connect(self._update_pos)
@@ -293,7 +295,7 @@ olorDialog.getColor(self.text_color, self, "Choose Text Color")
         if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
             return
         
-self.media_player.play()
+        self.media_player.play()
 
     def _pause(self):
         self.media_player.pause()
@@ -348,7 +350,7 @@ elf):
 one)
         self.exp_thread.error_occurred.connect(self._on_exp_err)
        
- self.exp_thread.start()
+        self.exp_thread.start()
 
     def _on_exp_done(self, path):
         self.export_label.setVisible(False)
