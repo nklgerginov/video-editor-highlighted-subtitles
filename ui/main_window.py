@@ -471,11 +471,15 @@ media_player.setSource(QUrl.fromLocalFile(fp))
                         break
         
         if not os.path.exists(model_path):
-            msg = f"""Vosk model not found at: {{model_path}}
+            QMessageBox.warning(
+                self, "Model Not Found", 
+                f"Vosk model not found at: {model_path}
 
-Download models from: https://alphacephei.com/vosk/models
-and place them in the 'models' folder"""
-            QMessageBox.warning(self, "Model Not Found", msg)
+"
+                "Download models from: https://alphacephei.com/vosk/models
+"
+                "and place them in the 'models' folder"
+            )
             return
         
         self.processing_label.setVisible(True)
