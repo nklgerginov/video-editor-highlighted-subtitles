@@ -30,7 +30,11 @@ class VideoExporter:
         color: str,
         bg_color: str = "transparent",
         font_path: Optional[str] = None
-    ) -> TextClip:
+    ) -> Optional[TextClip]:
+        # Skip empty text to avoid zero-sized clips
+        if not text or not text.strip():
+            return None
+            
         clip_kwargs = {
             "text": text,
             "size": None,
@@ -50,14 +54,24 @@ class VideoExporter:
             clip_kwargs["font"] = font_family
 
         try:
-            return TextClip(**clip_kwargs)
+            text_clip = TextClip(**clip_kwargs)
+            # Ensure the clip has valid dimensions
+            if hasattr(text_clip, 'w') and hasattr(text_clip, 'h'):
+                if text_clip.w <= 0 or text_clip.h <= 0:
+                    # Fallback: create a minimal clip if sizing failed
+                    text_clip = TextClip(text, fontsize=font_size, color=color, size=(100, font_size + 10))
+            return text_clip
         except (TypeError, ValueError, OSError) as e:
             error_msg = str(e)
             if "multiple values for argument 'font'" in error_msg:
                 clip_kwargs.pop("font", None)
                 clip_kwargs["font"] = font_family
                 try:
-                    return TextClip(**clip_kwargs)
+                    text_clip = TextClip(**clip_kwargs)
+                    if hasattr(text_clip, 'w') and hasattr(text_clip, 'h'):
+                        if text_clip.w <= 0 or text_clip.h <= 0:
+                            text_clip = TextClip(text, fontsize=font_size, color=color, size=(100, font_size + 10))
+                    return text_clip
                 except (ValueError, OSError):
                     pass
             
@@ -66,31 +80,58 @@ class VideoExporter:
             
             clip_kwargs.pop("font", None)
             clip_kwargs.pop("size", None)
-            return TextClip(**clip_kwargs)
+            try:
+                text_clip = TextClip(**clip_kwargs)
+                if hasattr(text_clip, 'w') and hasattr(text_clip, 'h'):
+                    if text_clip.w <= 0 or text_clip.h <= 0:
+                        text_clip = TextClip(text, fontsize=font_size, color=color, size=(100, font_size + 10))
+                return text_clip
+            except:
+                # Last resort: create a minimal clip
+                return TextClip(text or " ", fontsize=font_size, color=color, size=(100, font_size + 10))
 
     def _create_highlighted_subtitle_clips(self, video: VideoFileClip) -> List:
         subtitle_clips = []
         style = self.project.style
-  
+        
         position = self.project.position
 
+        # Ensure position has valid dimensions
+        if position.width <= 0:
+            position.width = 800
+        if position.height <= 0:
+            position.height = 200
+            
         bg_duration = video.duration
         if self.project.subtitles:
-            bg_duration = max(line.end_time for line in self.project.subtitles)
+            try:
+                bg_duration = max(line.end_time for line in self.project.subtitles)
+            except ValueError:
+                # No subtitles, use video duration
+                bg_duration = video.duration
         
-        bg_clip = ColorClip(
-            size=(position.width, position.height),
-            color=(0, 0, 0, 128),
-            duration=bg_duration
-        ).with_position((position.x, position.y)).with_start(0)
-        subtitle_clips.append(bg_clip)
+        # Create background clip only if we have subtitles
+        if self.project.subtitles:
+            bg_clip = ColorClip(
+                size=(position.width, position.height),
+                color=(0, 0, 0, style.background_opacity if hasattr(style, 'background_opacity') else 128),
+                duration=bg_duration
+            ).with_position((position.x, position.y)).with_start(0)
+            subtitle_clips.append(bg_clip)
 
+        # Get highlight font size from style
+        highlight_font_size = getattr(style, 'highlight_font_size', int(style.font_size * 1.5))
+        
         x_pos = position.x + 20
         y_pos = position.y + 20 + style.font_size
 
         for line in self.project.subtitles:
             line_x_pos = x_pos
             for word in line.words:
+                # Skip empty words
+                if not word.text or not word.text.strip():
+                    continue
+                    
                 normal_clip = self._create_text_clip(
                     word.text,
                     style.font_family,
@@ -102,10 +143,14 @@ class VideoExporter:
                 highlight_clip = self._create_text_clip(
                     word.text,
                     style.font_family,
-                    style.highlight_font_size,
+                    highlight_font_size,
                     style.highlight_color,
                     "transparent"
                 )
+
+                # Skip if clips couldn't be created
+                if normal_clip is None or highlight_clip is None:
+                    continue
 
                 normal_clip = normal_clip.with_position((line_x_pos, y_pos)).with_start(word.start_time).with_duration(
                     word.end_time - word.start_time
@@ -117,7 +162,8 @@ class VideoExporter:
                 subtitle_clips.append(normal_clip)
                 subtitle_clips.append(highlight_clip)
                 
-                word_width = len(word.text) * style.font_size * 0.6
+                # Calculate word width based on actual clip width if available
+                word_width = max(10, normal_clip.w if hasattr(normal_clip, 'w') else len(word.text) * style.font_size * 0.6)
                 line_x_pos += word_width + 10
             
             y_pos += style.font_size * 1.5
@@ -129,16 +175,23 @@ class VideoExporter:
         quality_params = {
             "low": {"bitrate": "500k"},
             "medium": {"bitrate": "2000k"},
-            
             "high": {"bitrate": "5000k"},
             "ultra": {"bitrate": "10000k"}
         }
         params = quality_params.get(quality, quality_params["high"])
 
         try:
-            final_video = CompositeVideoClip(
-                [video] + self._create_highlighted_subtitle_clips(video)
-            )
+            subtitle_clips = self._create_highlighted_subtitle_clips(video)
+            
+            # Only create composite if we have subtitle clips
+            if subtitle_clips:
+                final_video = CompositeVideoClip(
+                    [video] + subtitle_clips
+                )
+            else:
+                # No subtitles to add, just re-encode the video
+                final_video = video
+                
             final_video.write_videofile(
                 output_path,
                 fps=fps,
