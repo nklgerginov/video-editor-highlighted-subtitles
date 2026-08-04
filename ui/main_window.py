@@ -105,6 +105,8 @@ class MainWindow(QMainWindow):
         dark_palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
         dark_palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.black)
+        dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
+        dark_palette.setColor(QPalette.ColorRole.Disabled, QPalette.ColorRole.ButtonText, QColor(127, 127, 127))
         QApplication.setPalette(dark_palette)
         QApplication.setStyle("Fusion")
 
@@ -180,7 +182,6 @@ class MainWindow(QMainWindow):
         # Process Button
         self.process_button = QPushButton("Generate Subtitles")
         self.process_button.setStyleSheet("QPushButton { background-color: #9b59b6; color: white; padding: 10px; border-radius: 4px; font-size: 14px; } QPushButton:hover { background-color: #a569bd; } QPushButton:disabled { background-color: #7f8c8d; }")
-
         self.process_button.setEnabled(False)
         right_panel.addWidget(self.process_button)
 
@@ -525,7 +526,10 @@ class MainWindow(QMainWindow):
         if not os.path.exists(model_path):
             QMessageBox.warning(
                 self, "Model Not Found", 
-                f"Vosk model not found at: {model_path}\n\nDownload models from: https://alphacephei.com/vosk/models\nand place them in the 'models' folder"
+                f"Vosk model not found at: {model_path}
+
+Download models from: https://alphacephei.com/vosk/models
+and place them in the 'models' folder"
             )
             return
         
@@ -575,12 +579,6 @@ class MainWindow(QMainWindow):
         self.export_button.setEnabled(True)
         QMessageBox.critical(self, "Error", f"Export failed: {error}")
 
-    def closeEvent(self, event):
-        self._stop()
-        super().closeEvent(event)
-
-
-
     def _apply_preset(self):
         from models import STYLE_PRESETS
         preset_name = self.preset_combo.currentText()
@@ -600,6 +598,12 @@ class MainWindow(QMainWindow):
             self.stroke_width_spin.setValue(preset.stroke_width)
             self.bg_opacity_slider.setValue(preset.background_opacity)
             self._update_style()
+
+    def closeEvent(self, event):
+        self._stop()
+        super().closeEvent(event)
+
+
 def main():
     app = QApplication(sys.argv)
     w = MainWindow()
@@ -609,27 +613,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    def _load_presets(self):
-        from models import STYLE_PRESETS
-        self.preset_combo.clear()
-        self.preset_combo.addItems(list(STYLE_PRESETS.keys()))
-
-    def _apply_preset(self):
-        from models import STYLE_PRESETS
-        preset_name = self.preset_combo.currentText()
-        if preset_name in STYLE_PRESETS:
-            preset = STYLE_PRESETS[preset_name]
-            self.font_combo.setCurrentText(preset.font_family)
-            self.font_size_spin.setValue(preset.font_size)
-            self.highlight_font_size_spin.setValue(preset.highlight_font_size)
-            self.text_color = QColor(preset.text_color)
-            self._update_color_button(self.text_color_button, self.text_color)
-            self.highlight_color = QColor(preset.highlight_color)
-            self._update_color_button(self.highlight_color_button, self.highlight_color)
-            self.bold_check.setChecked(preset.bold)
-            self.italic_check.setChecked(preset.italic)
-            self.stroke_color = QColor(preset.stroke_color)
-            self._update_color_button(self.stroke_color_button, self.stroke_color)
-            self.stroke_width_spin.setValue(preset.stroke_width)
-            self.bg_opacity_slider.setValue(preset.background_opacity)
-            self._update_style()
